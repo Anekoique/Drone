@@ -1,0 +1,108 @@
+# Velocity and acceleration limits
+limits:
+  speed_max_xy: 4.00
+  speed_max_yaw: 0.2
+  speed_max_z: 0.80
+  accel_max_xy: 1.5
+  accel_max_yaw: 0.1
+  accel_max_z: 0.6
+
+# Custom PID controller
+mypid:
+  p: 0.6277
+  i: 0.1875
+  d: 0.0054
+  ff: 0
+  dff: 0
+  integrallimit: 1.3859
+  outputlimit: 2.0217
+
+# Position PID — X axis
+pos_x:
+  p: 0.6
+  i: 0.25
+  d: 0.50
+  ff: 0
+  dff: 0
+  imax: 5
+
+# Position PID — Y axis
+pos_y:
+  p: 0.6
+  i: 0.25
+  d: 0.50
+  ff: 0
+  dff: 0
+  imax: 5
+
+# Position PID — Yaw
+pos_yaw:
+  p: 0.1
+  i: 0.04
+  d: 0.05
+  ff: 0
+  dff: 0
+  imax: 5
+
+# Position PID — Z axis
+pos_z:
+  p: 0.30
+  i: 0.10
+  d: 0.10
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade position controller — X
+pos_px:
+  p: 1
+  i: 0
+  d: 0
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade position controller — Y
+pos_py:
+  p: 1
+  i: 0
+  d: 0
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade position controller — Z
+pos_pz:
+  p: 1
+  i: 0
+  d: 0
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade velocity controller — X
+pos_vx:
+  p: 1.35
+  i: 1.15
+  d: 0.85
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade velocity controller — Y
+pos_vy:
+  p: 1.35
+  i: 1.15
+  d: 0.85
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Cascade velocity controller — Z
+pos_vz:
+  p: 1
+  i: 0
+  d: 0
+  ff: 0
+  dff: 0
+  imax: 10

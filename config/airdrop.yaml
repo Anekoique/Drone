@@ -1,0 +1,43 @@
+# Airdrop visual-servo PID
+pid:
+  p: 0.190
+  i: 0.066
+  d: 0.066
+  ff: 0
+  dff: 0
+  imax: 0.1
+
+# Airdrop approach limits
+limits:
+  speed_max_xy: 0.7
+  speed_max_z: 0.15
+  speed_max_yaw: 0.05
+  accel_max_xy: 0.5
+  accel_max_z: 0.1
+
+# Target acquisition
+accuracy: 0.75        # Pixel-radius percentage for target range (unitless)
+radius: 0.080         # Position accuracy threshold (m)
+shot_duration: 0.6    # Hold time before release (s)
+shot_wait: 0.8        # Search time after release (s)
+
+# Left servo target pixel coordinates (px, 0 = use default)
+tar_x_l: 665
+tar_y_l: 470
+
+# Right servo target pixel coordinates (px, 0 = use default)
+tar_x_r: 615
+tar_y_r: 470
+
+# Target altitude (m)
+tar_z: 1.0
+
+# Left servo drop point relative to drone body (m)
+shot_target_x_l: -0.05
+shot_target_y_l: 0.015
+shot_target_z_l: 0.07
+
+# Right servo drop point relative to drone body (m)
+shot_target_x_r: 0.05
+shot_target_y_r: 0.015
+shot_target_z_r: 0.07

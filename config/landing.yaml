@@ -1,0 +1,33 @@
+# Landing visual-servo PID
+pid:
+  p: 0.4
+  i: 0.10
+  d: 0.15
+  ff: 0
+  dff: 0
+  imax: 10
+
+# Landing approach limits
+limits:
+  speed_max_xy: 0.3
+  speed_max_z: 0.2
+  speed_max_yaw: 0.1
+  accel_max_xy: 0.5
+  accel_max_z: 0.1
+
+# Landing pad target pixel coordinates (px, 0 = use default)
+tar_x: 640.0
+tar_y: 400.0
+
+# Target descent altitude (m)
+tar_z: 0.2
+
+# Scout point offset from landing target (m)
+scout_x: 0.0
+scout_y: 0.0
+
+# Scout hover altitude (m)
+scout_halt: 2.5
+
+# Position accuracy threshold (m)
+accuracy: 0.00005
