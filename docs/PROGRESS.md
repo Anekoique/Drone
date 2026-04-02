@@ -55,7 +55,7 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 | Replace MIN/MAX macros | done | std::min/std::max |
 | Code review fixes (6 HIGH) | done | constrain_float, PID statics, error ordering, segment guard |
 | Docker build verification | done | 0 errors, 0 warnings, 0 test failures |
-| Unit tests | pending | |
+| Unit tests (Phase 1+2) | done | timer, rotate, fuzzy_pid, math_utils, pid |
 
 ---
 
@@ -63,12 +63,21 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/perception/ | pending | |
-| Extract KalmanFilter2D | pending | |
-| Extract detection_subscriber (YOLO) | pending | |
-| Split Camera from CameraGimbal | pending | |
-| Break clustering → OffboardControl circular dep | pending | |
-| Unit tests | pending | |
+| Directory structure | done | include/drone/perception/ + detector/ subdirectory |
+| Detection types + adapter | done | Detection, TargetSample, Target, to_detection2d_array() |
+| Camera driver | done | V4L2/OpenCV capture, no ROS |
+| Detection filter (Kalman) | done | Joseph form, per-class tracking, sorted by center |
+| Camera model | done | pixel↔world, ENU/NED/ESD, distortion, get_position fix |
+| Clustering | done | k-means with diameter, break OffboardControl dep |
+| TensorRT detector headers | done | config, types, cuda_utils, preprocess, postprocess |
+| TensorRT detector impl | done | detector.cpp, preprocess.cu, plugin/yolo_layer.cu |
+| NMS postprocess | done | Ported from cv_cpp, removed draw functions |
+| YOLO plugin | done | YoloLayerPlugin + Creator, auto-registration |
+| Conditional CUDA CMake | done | check_language(CUDA) + CUDAToolkit + find_library(nvinfer) |
+| drone_perception library | done | Separate target from drone_utils |
+| Code review fixes (6 HIGH) | done | rotation chain, Kalman Joseph form, clustering guards |
+| Unit tests (Phase 3) | done | camera_model, detection_filter, clustering |
+| Docker build verification | done | 98 tests, 0 errors, 0 failures |
 
 ---
 

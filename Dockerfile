@@ -10,8 +10,13 @@ RUN apt-get update -qq && apt-get install -y -qq \
       ros-humble-ament-lint-common \
       ros-humble-eigen3-cmake-module \
       ros-humble-ament-index-cpp \
+      ros-humble-vision-msgs \
+      ros-humble-rclcpp \
+      ros-humble-cv-bridge \
+      ros-humble-ament-cmake-gtest \
       libeigen3-dev \
       libyaml-cpp-dev \
+      libopencv-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /Drone
