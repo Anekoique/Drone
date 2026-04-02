@@ -21,6 +21,9 @@ find_package(yaml-cpp REQUIRED)
 add_library(drone_utils
   src/control/fuzzy_pid.cpp
   src/control/autotune.cpp
+  src/math/utils.cpp
+  src/math/pid.cpp
+  src/math/scurve.cpp
   src/trajectory/trajectory_generator.cpp
 )
 

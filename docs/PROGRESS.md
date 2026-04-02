@@ -45,12 +45,16 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/math/ | pending | |
-| Extract math.h | pending | |
-| Extract PID | pending | |
-| Extract SCurve | pending | |
-| Remove `using namespace Eigen` from headers | pending | |
-| Replace #define PID constants | pending | |
+| Create include/drone/math/ + src/math/ | done | |
+| Extract utils (was math_utils + math) | done | Predicates, constrain_float→std::clamp, safe_sqrt |
+| Extract types (was math) | done | Eigen helpers: sq, norm, rotate_xy, kinematic_limit |
+| Extract PID | done | Removed duplicated fns, static locals→members, error ordering fix |
+| Extract BasicPID (was MYPID) | done | Renamed, std::clamp, ConfigLoader, exception handling |
+| Extract SCurve | done | Eigen:: prefix, std::min/max, std::isfinite, index guards |
+| Remove `using namespace Eigen` | done | Zero occurrences |
+| Replace MIN/MAX macros | done | std::min/std::max |
+| Code review fixes (6 HIGH) | done | constrain_float, PID statics, error ordering, segment guard |
+| Docker build verification | done | 0 errors, 0 warnings, 0 test failures |
 | Unit tests | pending | |
 
 ---

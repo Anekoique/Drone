@@ -91,9 +91,10 @@ Modules depending on Phase 1 leaves.
 
 | Module | Legacy Source | Target |
 |---|---|---|
-| math_utils | `math_utils.h`, `math.h/cpp` | `include/drone/math/` |
+| utils | `math_utils.h` | `include/drone/math/utils.hpp` |
+| types | `math.h/cpp` | `include/drone/math/types.hpp` |
 | pid | `PID.h/cpp` | `include/drone/math/pid.hpp` |
-| mypid | `MYPID.h` | `include/drone/math/mypid.hpp` |
+| basic_pid | `MYPID.h` | `include/drone/math/basic_pid.hpp` |
 | scurve | `SCurve.h/cpp` | `include/drone/math/scurve.hpp` |
 
 Tasks:
