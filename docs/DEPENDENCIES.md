@@ -2,12 +2,16 @@
 
 ## Overview
 
-| Target | OS | ROS 2 Meta-package |
-|---|---|---|
-| Local workstation | Ubuntu 22.04 (Jammy) x86_64 | `ros-humble-desktop` |
-| Raspberry Pi | Ubuntu 22.04 (Jammy) arm64 | `ros-humble-ros-base` |
+| Target | OS | Hardware | ROS 2 |
+|---|---|---|---|
+| NVIDIA Jetson (onboard) | JetPack 6 / Ubuntu 22.04 arm64 | ARM CPU + NVIDIA GPU | Humble |
+| Local workstation (dev) | Ubuntu 22.04 x86_64 | x86 CPU + NVIDIA GPU | Humble |
 
-Both targets share a common core installed by `scripts/deps/common.sh`.
+The Jetson replaces the Raspberry Pi as the onboard computer. It runs the
+complete pipeline in a single process: camera capture → TensorRT inference →
+control → MAVROS. No network hops, no split deployment.
+
+The local workstation is used for development, SITL simulation, and debugging.
 
 ---
 
@@ -22,14 +26,12 @@ Both targets share a common core installed by `scripts/deps/common.sh`.
 
 ### ROS 2 Message Packages
 
-Required by `CMakeLists.txt`:
-
 | Package | Used For |
 |---|---|
 | `geometry_msgs` | PoseStamped, TwistStamped, Vector3Stamped |
 | `nav_msgs` | Odometry |
 | `sensor_msgs` | NavSatFix, Imu, Range, Image |
-| `vision_msgs` | Detection2DArray (external detector) |
+| `vision_msgs` | Detection2DArray (internal detector output) |
 | `visualization_msgs` | MarkerArray (rviz targets) |
 | `geographic_msgs` | GeoPoseStamped (global setpoints) |
 | `trajectory_msgs` | MultiDOFJointTrajectory |
@@ -39,30 +41,44 @@ Required by `CMakeLists.txt`:
 
 ### C++ Libraries
 
-| Library | apt Package | Used For |
-|---|---|---|
-| Eigen3 | `libeigen3-dev` | Vector/matrix math, quaternions |
-| OpenCV | `libopencv-dev` | Camera distortion correction |
-| yaml-cpp | `libyaml-cpp-dev` | YAML config parsing |
-| ncurses | `libncurses-dev` | Terminal keyboard input (debug mode) |
+| Library | Used For |
+|---|---|
+| Eigen3 | Vector/matrix math, quaternions |
+| OpenCV | Camera capture, distortion correction, image processing |
+| yaml-cpp | YAML config parsing |
+| TensorRT | YOLO inference (GPU accelerated) |
+| CUDA | GPU compute for TensorRT and preprocessing |
 
 ### Build Tools
 
-| Tool | apt Package |
+| Tool | Package |
 |---|---|
-| CMake >= 3.5 | `cmake` |
+| CMake >= 3.14 | `cmake` |
 | colcon | `python3-colcon-common-extensions` |
 | rosdep | `python3-rosdep` |
 | eigen3_cmake_module | `ros-humble-eigen3-cmake-module` |
+| CUDA Toolkit | JetPack (Jetson) or `nvidia-cuda-toolkit` (workstation) |
 
 ### GeographicLib
 
-MAVROS refuses to start without GeographicLib datasets. The scripts install
-`geographiclib-tools` then download:
+MAVROS requires GeographicLib datasets:
 
 - `egm96-5` (geoid) — **mandatory**
 - `egm96` (gravity)
 - `emm2015` (magnetic)
+
+---
+
+## Jetson Only
+
+| Component | Source |
+|---|---|
+| JetPack 6 | NVIDIA SDK (includes CUDA, cuDNN, TensorRT) |
+| V4L2 / CSI camera driver | Built into JetPack kernel |
+| TensorRT | JetPack (pre-installed) |
+
+The Jetson runs the single `drone_node` binary which handles everything:
+camera → inference → control → MAVROS.
 
 ---
 
@@ -72,29 +88,41 @@ MAVROS refuses to start without GeographicLib datasets. The scripts install
 |---|---|
 | Gazebo | `ros-humble-ros-gz` or standalone install |
 | ArduPilot SITL | Built from source (`sim_vehicle.py`) |
+| TensorRT | NVIDIA TensorRT (for local inference testing) |
 | `pal-statistics-msgs` | Optional compile-time statistics publisher |
 
 ---
 
-## Raspberry Pi Only
+## Runtime Data Flow
 
-Uses `ros-humble-ros-base` instead of `desktop` (~2 GB smaller). The shared
-core packages are installed explicitly. Does not need Gazebo, rviz, SITL, or
-pal_statistics.
+Single process on Jetson, zero network hops:
 
----
+```
+Camera (V4L2/CSI)
+  │
+  ▼
+TensorRT YOLO inference (GPU)
+  │
+  ▼
+Detection filter (Kalman) + Clustering
+  │
+  ▼
+Camera model (pixel → world)
+  │
+  ▼
+Mission state machine
+  ├── Airdrop handler → Servo (MAVROS cmd/command)
+  ├── Recon handler
+  └── Landing handler
+  │
+  ▼
+Position controller (PID cascade)
+  │
+  ▼
+MAVROS → Flight Controller
+```
 
-## External Runtime Dependencies
-
-### External detector (not included)
-
-| Topic | Type |
-|---|---|
-| `detection2d_array` | `vision_msgs/msg/Detection2DArray` |
-
-Expected detection classes: `circle`, `h`, `stuffed`.
-
-### Topics consumed from MAVROS
+### MAVROS Topics Consumed
 
 | Topic | Type | Consumer |
 |---|---|---|
@@ -105,9 +133,9 @@ Expected detection classes: `circle`, `h`, `stuffed`.
 | `/mavros/altitude` | `mavros_msgs/msg/Altitude` | InertialNav |
 | `/mavros/state` | `mavros_msgs/msg/State` | Motors |
 | `/mavros/home_position/home` | `mavros_msgs/msg/HomePosition` | Motors |
-| `/mavros/mount_control/status` | `geometry_msgs/msg/Vector3Stamped` | CameraGimbal |
+| `/mavros/mount_control/status` | `geometry_msgs/msg/Vector3Stamped` | Gimbal |
 
-### Topics published into MAVROS
+### MAVROS Topics Published
 
 | Topic | Type | Publisher |
 |---|---|---|
@@ -117,9 +145,9 @@ Expected detection classes: `circle`, `h`, `stuffed`.
 | `/mavros/setpoint_raw/global` | `mavros_msgs/msg/GlobalPositionTarget` | PosControl |
 | `/mavros/setpoint_accel/accel` | `geometry_msgs/msg/Vector3Stamped` | PosControl |
 | `/mavros/setpoint_raw/attitude` | `mavros_msgs/msg/AttitudeTarget` | PosControl |
-| `/mavros/mount_control/command` | `mavros_msgs/msg/MountControl` | CameraGimbal |
+| `/mavros/mount_control/command` | `mavros_msgs/msg/MountControl` | Gimbal |
 
-### MAVROS services called
+### MAVROS Services Called
 
 | Service | Type | Caller |
 |---|---|---|
@@ -128,7 +156,7 @@ Expected detection classes: `circle`, `h`, `stuffed`.
 | `/mavros/cmd/takeoff` | `mavros_msgs/srv/CommandTOL` | Motors |
 | `/mavros/cmd/land` | `mavros_msgs/srv/CommandTOL` | Motors |
 | `/mavros/cmd/set_home` | `mavros_msgs/srv/CommandHome` | Motors |
-| `/mavros/cmd/command` | `mavros_msgs/srv/CommandLong` | ServoController |
+| `/mavros/cmd/command` | `mavros_msgs/srv/CommandLong` | Servo |
 | `/mavros/param/set` | `mavros_msgs/srv/ParamSetV2` | Motors |
 
 ---
@@ -138,13 +166,11 @@ Expected detection classes: `circle`, `h`, `stuffed`.
 ```
 scripts/deps/
   common.sh   — shared logic (sourced, not run directly)
-  local.sh    — workstation: desktop + Gazebo + pal_statistics
-  raspi.sh    — Pi: ros-base only
+  local.sh    — workstation: desktop + Gazebo + CUDA/TensorRT
+  jetson.sh   — Jetson: ros-base + JetPack deps
 ```
 
-Both run: repo setup -> ROS 2 install -> core deps -> GeographicLib -> rosdep init.
-
-After cloning the workspace, resolve transitive deps manually:
+After cloning the workspace, resolve transitive deps:
 ```sh
 rosdep install --from-paths src --ignore-src -r -y
 ```

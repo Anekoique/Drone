@@ -25,15 +25,18 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/utils/ | pending | |
-| Extract math_utils | pending | |
-| Extract readyaml | pending | |
-| Extract timer | pending | |
-| Extract keyboard helpers | pending | |
-| Extract fuzzy_pid | pending | |
-| Extract autotune | pending | |
-| Extract trajectory_generator | pending | |
-| Remove dead code (AC_WPNav, .bak files) | pending | |
+| Directory structure (include/drone/, src/) | done | include/drone/{utils,control,trajectory} |
+| Extract readyaml | done | ConfigLoader with ament installed layout |
+| Extract timer | done | drone::Timer in utils/timer.hpp |
+| Extract keyboard helpers | done | drone::kbhit/getch in utils/keyboard.hpp |
+| Extract rotate | done | drone::rotate_2d in utils/rotate.hpp |
+| Extract fuzzy_pid | done | std::vector replaces malloc, clamp bug fixed, off-by-one fixed |
+| Extract autotune | done | Modern enums, Tu ms→s unit fix |
+| Extract trajectory_generator | done | drone::TrajectoryGenerator |
+| CMakeLists + package.xml | done | Exported lib with PUBLIC yaml-cpp/Eigen3 |
+| Code review fixes | done | 9 HIGH issues resolved |
+| Docker build verification | done | 0 errors, 0 failures |
+| Extract math_utils | deferred | Migrates with full math layer |
 | Unit tests | pending | |
 
 ---
