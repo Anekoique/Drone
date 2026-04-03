@@ -13,6 +13,11 @@ RUN apt-get update -qq && apt-get install -y -qq \
       ros-humble-vision-msgs \
       ros-humble-rclcpp \
       ros-humble-cv-bridge \
+      ros-humble-mavros-msgs \
+      ros-humble-geometry-msgs \
+      ros-humble-nav-msgs \
+      ros-humble-sensor-msgs \
+      ros-humble-std-msgs \
       ros-humble-ament-cmake-gtest \
       libeigen3-dev \
       libyaml-cpp-dev \

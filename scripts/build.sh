@@ -13,13 +13,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 IMAGE_NAME="drone-dev"
 
-RUN_CMD=(
-  docker run --rm
-  -v "$PROJECT_DIR":/Drone/src/drone
-  -w /Drone
-  "$IMAGE_NAME"
-)
-
 ensure_image() {
   if ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
     echo "Building base image (first time only)..."
@@ -43,11 +36,17 @@ case "${1:-}" in
   *)
     ensure_image
     echo "Building..."
-    "${RUN_CMD[@]}" bash -c \
-      "source /opt/ros/humble/setup.bash && colcon build --packages-select drone"
-    echo "Testing..."
-    "${RUN_CMD[@]}" bash -c \
-      "source /opt/ros/humble/setup.bash && colcon build --packages-select drone && colcon test --packages-select drone && colcon test-result --all --verbose"
+    docker run --rm \
+      -v "$PROJECT_DIR":/Drone/src/drone \
+      -w /Drone \
+      "$IMAGE_NAME" \
+      bash -c "
+        source /opt/ros/humble/setup.bash
+        colcon build --packages-select drone --cmake-args -DBUILD_TESTING=ON
+        echo 'Testing...'
+        colcon test --packages-select drone
+        colcon test-result --all --verbose
+      "
     echo "All passed."
     ;;
 esac

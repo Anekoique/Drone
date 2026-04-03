@@ -38,17 +38,27 @@ jobs:
             ros-humble-ament-cmake \
             ros-humble-ament-lint-auto \
             ros-humble-ament-lint-common \
+            ros-humble-ament-cmake-gtest \
             ros-humble-eigen3-cmake-module \
             ros-humble-ament-index-cpp \
+            ros-humble-vision-msgs \
+            ros-humble-rclcpp \
+            ros-humble-cv-bridge \
+            ros-humble-mavros-msgs \
+            ros-humble-geometry-msgs \
+            ros-humble-nav-msgs \
+            ros-humble-sensor-msgs \
+            ros-humble-std-msgs \
             libeigen3-dev \
-            libyaml-cpp-dev
+            libyaml-cpp-dev \
+            libopencv-dev
       - name: Build
         shell: bash
         run: |
           source /opt/ros/humble/setup.bash
           mkdir -p /ci/src && ln -s $GITHUB_WORKSPACE /ci/src/drone
           cd /ci
-          colcon build --packages-select drone
+          colcon build --packages-select drone --cmake-args -DBUILD_TESTING=ON
       - name: Test
         shell: bash
         run: |

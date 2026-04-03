@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-psabi)
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -19,6 +19,11 @@ find_package(yaml-cpp REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(vision_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(mavros_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # --- Utility library (math, control, trajectory) ---
 add_library(drone_utils
@@ -92,11 +97,29 @@ else()
   message(STATUS "No CUDA compiler — detector excluded")
 endif()
 
+# --- Drivers library (MAVROS interface) ---
+add_library(drone_drivers
+  src/drivers/node_base.cpp
+  src/drivers/motors.cpp
+  src/drivers/inertial_nav.cpp
+  src/drivers/servo.cpp
+  src/drivers/gimbal.cpp
+)
+
+target_include_directories(drone_drivers PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(drone_drivers PUBLIC drone_utils)
+ament_target_dependencies(drone_drivers PUBLIC
+  rclcpp mavros_msgs geometry_msgs nav_msgs sensor_msgs std_msgs Eigen3)
+target_include_directories(drone_drivers SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
+
 # --- Install ---
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
 
-install(TARGETS drone_utils drone_perception
+install(TARGETS drone_utils drone_perception drone_drivers
   EXPORT export_drone
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -113,7 +136,9 @@ if(TARGET drone_perception_cuda)
 endif()
 
 ament_export_targets(export_drone HAS_LIBRARY_TARGET)
-ament_export_dependencies(eigen3_cmake_module Eigen3 ament_index_cpp yaml-cpp OpenCV vision_msgs rclcpp)
+ament_export_dependencies(
+  eigen3_cmake_module Eigen3 ament_index_cpp yaml-cpp OpenCV
+  vision_msgs rclcpp mavros_msgs geometry_msgs nav_msgs sensor_msgs std_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

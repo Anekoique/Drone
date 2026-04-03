@@ -85,13 +85,16 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/drivers/ | pending | |
-| Extract node_base | pending | |
-| Extract motors | pending | |
-| Extract inertial_nav (private fields) | pending | |
-| Extract servo_controller | pending | |
-| Replace raw back-pointers | pending | |
-| Integration tests | pending | |
+| Directory structure | done | include/drone/drivers/ + src/drivers/ |
+| NodeBase | done | rclcpp::Node inheritance, params, mode client |
+| Motors | done | Takeoff state machine, async services, bool returns |
+| InertialNav | done | Private fields, const getters, yaw from quaternion |
+| Servo | done | Non-blocking fire_servo (one-shot timer, per-ID map) |
+| Gimbal | done | MountControl pub/sub (legacy MAVROS) |
+| Node& reference pattern | done | No shared_from_this, no raw pointers |
+| drone_drivers library | done | Separate CMake target |
+| Docker build verification | done | 108 tests, 0 errors, 0 failures |
+| Integration tests | pending | Needs MAVROS mock infrastructure |
 
 ---
 
