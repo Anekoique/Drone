@@ -154,9 +154,18 @@ ament_target_dependencies(drone_mission PUBLIC
   rclcpp std_msgs mavros_msgs geometry_msgs Eigen3)
 target_include_directories(drone_mission SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
 
+# --- Executable ---
+add_executable(drone_node src/main.cpp)
+target_link_libraries(drone_node drone_mission)
+
 # --- Install ---
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
+install(DIRECTORY launch/ DESTINATION share/${PROJECT_NAME}/launch)
+
+install(TARGETS drone_node
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
 
 install(TARGETS drone_utils drone_control drone_perception drone_drivers drone_mission
   EXPORT export_drone
@@ -240,6 +249,16 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_fly_state test/test_fly_state.cpp)
   target_link_libraries(test_fly_state drone_mission)
+
+  # Phase 7+8 — additional coverage
+  ament_add_gtest(test_basic_pid test/test_basic_pid.cpp)
+  target_link_libraries(test_basic_pid drone_utils)
+
+  ament_add_gtest(test_scurve test/test_scurve.cpp)
+  target_link_libraries(test_scurve drone_utils)
+
+  ament_add_gtest(test_waypoint_nav test/test_waypoint_nav.cpp)
+  target_link_libraries(test_waypoint_nav drone_mission)
 endif()
 
 ament_package()

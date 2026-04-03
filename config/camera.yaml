@@ -1,3 +1,9 @@
+# Camera device path (V4L2 or CSI)
+camera_device: /dev/video0
+
+# TensorRT model path (relative to package share or absolute)
+model_path: model/best.engine
+
 # Camera intrinsic parameters
 fx: 611.4
 fy: 610.7

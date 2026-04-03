@@ -139,9 +139,12 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Consolidate YAML configs | pending | |
-| Create launch files | pending | |
-| Document all parameters | pending | |
+| src/main.cpp entry point | done | Minimal: init, make_shared DroneNode, spin, shutdown |
+| launch/drone.launch.py | done | mavros_ns + config_dir launch args, ament_index defaults |
+| CMake executable + launch install | done | drone_node executable, launch/ installed to share |
+| Camera device + model path config | done | Added to camera.yaml (perception layer) |
+| .clang-tidy config | done | bugprone, cert, cppcoreguidelines, performance, readability |
+| PLAN/REVIEW iteration | done | 1 round: 00 approved (0 blockers, 4 non-blocking) |
 
 ---
 
@@ -149,9 +152,13 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| GoogleTest setup | pending | |
-| 80%+ coverage on core modules | pending | |
-| Mock MAVROS integration tests | pending | |
-| GitHub Actions CI | pending | |
-| clang-format CI check | pending | |
-| clang-tidy CI check | pending | |
+| GoogleTest setup | done | Already complete since Phase 2, ament_cmake_gtest |
+| test_basic_pid (5 tests) | done | Default, proportional, limits, integral, Mypid |
+| test_scurve (3 tests) | done | calculate_path valid times, zero distance, init finished |
+| test_waypoint_nav (3 tests) | done | Default values, reset clears, timer restart |
+| GitHub Actions CI | done | Format check + build/test on ROS Humble (since Phase 0) |
+| clang-format CI check | done | Already in ci.yml since Phase 0 |
+| clang-tidy config | done | .clang-tidy added (warning-only, non-blocking) |
+| Docker build verification | done | 225 tests, 0 errors, 0 failures |
+| Mock MAVROS integration tests | deferred | Requires MAVROS mock infrastructure (too complex) |
+| 80%+ coverage reporting | deferred | lcov integration with ament is non-trivial |

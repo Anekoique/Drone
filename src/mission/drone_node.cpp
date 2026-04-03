@@ -17,9 +17,8 @@ DroneNode::DroneNode(const std::string & mavros_ns, const std::string & config_d
   gimbal_(*this, mavros_ns),
   pos_control_(*this, inav_, config_dir + "/pos_control.yaml"),
   subs_{motors_, inav_, pos_control_, servo_, gimbal_},
-  config_(
-    MissionConfig::load(
-      config_dir + "/mission.yaml", config_dir + "/airdrop.yaml", config_dir + "/landing.yaml")),
+  config_(MissionConfig::load(
+    config_dir + "/mission.yaml", config_dir + "/airdrop.yaml", config_dir + "/landing.yaml")),
   takeoff_(subs_, config_),
   airdrop_(subs_, config_),
   recon_(subs_, config_),
