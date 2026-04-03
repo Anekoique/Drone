@@ -133,11 +133,32 @@ ament_target_dependencies(drone_drivers PUBLIC
   rclcpp mavros_msgs geometry_msgs nav_msgs sensor_msgs std_msgs Eigen3)
 target_include_directories(drone_drivers SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
 
+# --- Mission library (state machine + handlers) ---
+add_library(drone_mission
+  src/mission/mission_types.cpp
+  src/mission/frame_transforms.cpp
+  src/mission/waypoint_nav.cpp
+  src/mission/takeoff_handler.cpp
+  src/mission/airdrop_handler.cpp
+  src/mission/recon_handler.cpp
+  src/mission/landing_handler.cpp
+  src/mission/drone_node.cpp
+)
+
+target_include_directories(drone_mission PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(drone_mission PUBLIC drone_drivers drone_control drone_utils)
+ament_target_dependencies(drone_mission PUBLIC
+  rclcpp std_msgs mavros_msgs geometry_msgs Eigen3)
+target_include_directories(drone_mission SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
+
 # --- Install ---
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
 
-install(TARGETS drone_utils drone_control drone_perception drone_drivers
+install(TARGETS drone_utils drone_control drone_perception drone_drivers drone_mission
   EXPORT export_drone
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -209,6 +230,16 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_limits test/test_limits.cpp)
   target_link_libraries(test_limits drone_control)
+
+  # Phase 6 — mission
+  ament_add_gtest(test_frame_transforms test/test_frame_transforms.cpp)
+  target_link_libraries(test_frame_transforms drone_mission)
+
+  ament_add_gtest(test_mission_config test/test_mission_config.cpp)
+  target_link_libraries(test_mission_config drone_mission)
+
+  ament_add_gtest(test_fly_state test/test_fly_state.cpp)
+  target_link_libraries(test_fly_state drone_mission)
 endif()
 
 ament_package()

@@ -120,15 +120,18 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/mission/ | pending | |
-| Extract TakeoffHandler | pending | |
-| Extract AirdropHandler | pending | |
-| Extract ReconHandler | pending | |
-| Extract LandingHandler | pending | |
-| Make StateMachine generic | pending | |
-| Create FrameTransforms utility | pending | |
-| Move waypoints to config | pending | |
-| Replace god class with MissionNode | pending | |
+| mission_types.hpp | done | FlyState enum (9 states), fly_state_to_int, Subsystems, MissionConfig with 3 YAML loaders |
+| frame_transforms.hpp/cpp | done | 7 stateless free functions: rotate_xy, compass/world/local/start transforms |
+| waypoint_nav.hpp/cpp | done | WaypointState with reset(), time-based waypoint progression |
+| TakeoffHandler | done | initialize() + takeoff(), captures start position, gimbal init |
+| AirdropHandler | done | goto_zone (12s timeout) + execute (5 sub-states), fast_mode, circle_counter, double-barrel |
+| ReconHandler | done | goto_zone (7.5s timeout) + patrol via waypoint_nav |
+| LandingHandler | done | execute (5 sub-states: rtl, wait, visual_approach, descent, land) + land_to_start (3 sub-states) |
+| DroneNode | done | Inherits NodeBase, readiness guard, state dispatch, prev_state reset protocol |
+| drone_mission CMake target | done | Links drone_drivers + drone_control |
+| PLAN/REVIEW iteration | done | 2 rounds: 00 blocked (7 HIGH), 01 approved with conditions |
+| Unit tests | done | frame_transforms (9), mission_config (2), fly_state (2) |
+| Docker build verification | done | 203 tests, 0 errors, 0 failures |
 
 ---
 
