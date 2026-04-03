@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file trajectory_controller.cpp
+/// @brief Waypoint caching and arrival detection for trajectory modes.
+///        Supports absolute, relative, circular, and generator-based trajectories.
+///        Each mode maintains its own state that is reset independently.
+
 #include "drone/control/trajectory_controller.hpp"
 
 #include <cmath>
@@ -9,6 +16,8 @@ TrajectoryController::TrajectoryController(const Limits & limits) : limits_(limi
 {
 }
 
+/// Cache an absolute target; reinitialize if the target has moved.
+/// Returns the cached target and a done flag when within accuracy on all axes.
 std::pair<Eigen::Vector4f, bool> TrajectoryController::setpoint_world(
   const Eigen::Vector3f & pos_current, const Eigen::Vector4f & pos_target, float accuracy)
 {
@@ -37,6 +46,7 @@ std::pair<Eigen::Vector4f, bool> TrajectoryController::setpoint_world(
   return {setpoint_state_.cached_target, done};
 }
 
+/// Convert a relative offset to an absolute target on first call, then track arrival.
 std::pair<Eigen::Vector4f, bool> TrajectoryController::setpoint_relative(
   const Eigen::Vector3f & pos_current, const Eigen::Vector4f & pos_offset, float accuracy)
 {
@@ -62,6 +72,8 @@ std::pair<Eigen::Vector4f, bool> TrajectoryController::setpoint_relative(
   return {relative_state_.cached_target, done};
 }
 
+/// Parametric elliptical orbit: advance the angle by angular_vel each call
+/// and return the (x,y,z) waypoint on the ellipse. Never returns done.
 std::pair<Eigen::Vector4f, bool> TrajectoryController::circle(
   float a, float b, float height, float angular_vel, float yaw)
 {
@@ -80,6 +92,9 @@ std::pair<Eigen::Vector4f, bool> TrajectoryController::circle(
   return {waypoint, false};
 }
 
+/// Time-optimal trajectory via TrajectoryGenerator. On target change,
+/// creates a new generator with clamped velocity/acceleration limits.
+/// Returns incremental waypoints offset from the start position.
 std::pair<Eigen::Vector4f, bool> TrajectoryController::generator_world(
   const Eigen::Vector3f & pos_current, double speed_factor, const std::array<double, 3> & q_goal,
   float target_yaw, const Eigen::Vector3f & max_speed, const Eigen::Vector3f & max_accel)

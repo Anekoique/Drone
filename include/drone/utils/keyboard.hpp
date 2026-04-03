@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <fcntl.h>
@@ -10,7 +13,7 @@ namespace drone
 {
 
 /// Check if a key has been pressed (non-blocking).
-/// Returns false if stdin is not a terminal.
+/// @return true if a keypress is pending, false if stdin is not a terminal or no key pressed.
 inline bool kbhit()
 {
   struct termios oldt{};
@@ -35,8 +38,8 @@ inline bool kbhit()
   return false;
 }
 
-/// Read a single character without echo.
-/// Returns '\0' if stdin is not a terminal.
+/// Read a single character without echo (blocking).
+/// @return The character read, or '\0' if stdin is not a terminal.
 inline char getch()
 {
   struct termios oldt{};

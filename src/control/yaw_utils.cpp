@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file yaw_utils.cpp
+/// @brief Yaw angle normalization and shortest-path error computation.
+
 #include "drone/control/yaw_utils.hpp"
 
 #include <cmath>

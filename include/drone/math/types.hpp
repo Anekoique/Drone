@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/math/utils.hpp"
@@ -11,8 +14,10 @@
 namespace drone
 {
 
+/// Default floating-point type alias used across math utilities.
 using ftype = float;
 
+/// Square a scalar value.
 template <typename T>
 ftype sq(T val)
 {
@@ -20,12 +25,14 @@ ftype sq(T val)
   return v * v;
 }
 
+/// Euclidean norm of a 3D vector.
 template <typename T>
 T norm(const T & x, const T & y, const T & z)
 {
   return std::sqrt(x * x + y * y + z * z);
 }
 
+/// Euclidean norm of a 2D vector.
 template <typename T>
 T norm(const T & x, const T & y)
 {
@@ -44,8 +51,15 @@ void rotate_xy(T & x, T & y, float rotation_rad)
   y = ry;
 }
 
+/// Check if two 4D vectors are approximately equal within tolerance.
 bool is_equal(Eigen::Vector4f a, Eigen::Vector4f b, float tolerance = 0.001f);
 
+/// Compute the maximum speed along a direction given separate XY and Z limits.
+/// @param direction Unit direction vector.
+/// @param max_xy Maximum horizontal speed.
+/// @param max_z_pos Maximum upward speed.
+/// @param max_z_neg Maximum downward speed.
+/// @return Speed limit along direction.
 float kinematic_limit(Eigen::Vector3f direction, float max_xy, float max_z_pos, float max_z_neg);
 
 }  // namespace drone

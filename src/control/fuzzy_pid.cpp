@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file fuzzy_pid.cpp
+/// @brief Fuzzy logic PID gain scheduler. Evaluates membership functions on
+///        error and delta-error, applies fuzzy inference rules, and outputs
+///        delta-Kp/Ki/Kd adjustments to adapt PID gains online.
+
 #include "drone/control/fuzzy_pid.hpp"
 
 #include <algorithm>
@@ -15,7 +22,9 @@ float clamp(float value, float lo, float hi)
   return std::clamp(value, lo, hi);
 }
 
-// Membership functions
+// Membership functions: map a crisp input to a fuzzy membership value [0, 1].
+// Each function implements a different shape (Gaussian, generalized bell,
+// sigmoid, trapezoidal, triangular, Z-shaped).
 float gaussmf(float x, float sigma, float c)
 {
   return std::exp(-std::pow((x - c) / sigma, 2.0f));
@@ -169,6 +178,8 @@ void FuzzyPID::init(const Params * fuzzy_params)
   current_error_ = 0;
 }
 
+/// Mean-of-centers defuzzification: compute weighted average of rule consequents
+/// using joint membership values as weights.
 void FuzzyPID::moc(
   const float * joint_membership, const unsigned int * index, const unsigned int * count)
 {
@@ -196,6 +207,9 @@ void FuzzyPID::df(
   moc(joint_membership, output, count);
 }
 
+/// Core fuzzy inference: fuzzify inputs (error, delta-error), compute joint
+/// membership via the configured fuzzy operator, evaluate the rule base, and
+/// defuzzify to produce gain deltas (delta_kp_, delta_ki_, delta_kd_).
 void FuzzyPID::fuzzy_control(float e, float de)
 {
   ke_ = e;
@@ -241,6 +255,9 @@ void FuzzyPID::fuzzy_control(float e, float de)
   delta_kd_ = (fuzzy_output_num_ >= 3) ? fuzzy_output_[2] / 3.0f * delta_kd_max_ : 0;
 }
 
+/// High-level API: compute error and delta-error for a given control axis,
+/// normalize them by the per-axis max ranges, run fuzzy inference, and
+/// add the resulting gain deltas to kp/ki/kd (modified in place).
 void FuzzyPID::fuzzy_pid_control(
   float real, float idea, int control_id, float & kp, float & ki, float & kd, float delta_k)
 {

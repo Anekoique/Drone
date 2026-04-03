@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_math_utils.cpp
+/// @brief Unit tests for math utility functions.
+
 #include "drone/math/utils.hpp"
 
 #include <gtest/gtest.h>

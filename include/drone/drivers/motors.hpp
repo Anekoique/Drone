@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/utils/timer.hpp"
@@ -25,15 +28,39 @@ namespace drone
 class Motors
 {
 public:
+  /// @param node ROS 2 node for creating clients and subscribers.
+  /// @param mavros_ns MAVROS namespace.
   Motors(rclcpp::Node & node, const std::string & mavros_ns);
 
   /// Takeoff state machine. Call repeatedly from timer. Returns true when airborne.
+  /// @param current_z Current altitude.
+  /// @param takeoff_altitude Target altitude.
+  /// @param yaw Heading for takeoff.
   bool takeoff(float current_z, float takeoff_altitude = 5.0f, float yaw = 0.0f);
 
+  /// Arm or disarm the motors.
+  /// @param do_arm true to arm, false to disarm.
+  /// @return true if the service call was sent successfully.
   bool arm(bool do_arm);
+
+  /// Switch flight mode (e.g. "GUIDED", "LAND").
+  /// @param mode Mode string.
+  /// @return true if the service call was sent successfully.
   bool switch_mode(const std::string & mode);
+
+  /// Set home position with given yaw.
+  /// @return true if the service call was sent successfully.
   bool set_home_position(float yaw = 0.0f);
+
+  /// Send a takeoff or land command.
+  /// @param cmd "takeoff" or "land".
+  /// @return true if the service call was sent successfully.
   bool command_takeoff_or_land(const std::string & cmd, float altitude = 5.0f, float yaw = 0.0f);
+
+  /// Set a MAVROS parameter value.
+  /// @param name Parameter name.
+  /// @param value Parameter value.
+  /// @return true if the service call was sent successfully.
   bool set_param(const std::string & name, double value);
 
   bool armed() const { return armed_; }
@@ -41,10 +68,12 @@ public:
   bool guided() const { return guided_; }
   std::string mode() const { return mode_; }
   uint8_t system_status() const { return system_status_; }
+  /// Home position in local ENU frame.
   Eigen::Vector3f home_position() const { return home_position_; }
+  /// Home position in global frame (lat, lon, alt).
   Eigen::Vector3f home_position_global() const { return home_position_global_; }
 
-  // Takeoff state machine states
+  /// Takeoff state machine states.
   enum class TakeoffState
   {
     kInit,
@@ -55,7 +84,7 @@ public:
     kEnd
   };
 
-  bool takeoff_command = false;  // Set externally to trigger takeoff
+  bool takeoff_command = false;  ///< Set externally to trigger takeoff
 
 private:
   rclcpp::Node & node_;

@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file recon_handler.cpp
+/// @brief Reconnaissance phase: fly to the recon zone and patrol through
+///        its waypoint list. Transitions to landing when all waypoints are visited.
+
 #include "drone/mission/recon_handler.hpp"
 
 #include "drone/mission/frame_transforms.hpp"

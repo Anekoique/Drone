@@ -1,3 +1,11 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file preprocess.cu
+/// @brief GPU-accelerated image preprocessing for YOLO inference.
+///        Performs affine warp (letterbox resize), bilinear interpolation,
+///        BGR-to-RGB conversion, normalization, and HWC-to-CHW layout conversion
+///        in a single CUDA kernel pass.
+
 #ifdef DRONE_HAS_CUDA
 
 #include "drone/perception/detector/cuda_utils.hpp"

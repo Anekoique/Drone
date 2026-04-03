@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_scurve.cpp
+/// @brief Unit tests for S-Curve trajectory generation.
+
 #include "drone/math/scurve.hpp"
 
 #include <gtest/gtest.h>

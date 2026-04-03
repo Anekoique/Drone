@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_rotate.cpp
+/// @brief Unit tests for rotation utilities.
+
 #include "drone/utils/rotate.hpp"
 
 #include <gtest/gtest.h>

@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/math/utils.hpp"
@@ -9,30 +12,67 @@
 namespace drone
 {
 
+/// S-curve trajectory planner for smooth jerk-limited motion along a 3D track.
+/// Computes a time-optimal 7-segment profile respecting snap, jerk, accel, and velocity limits.
 class SCurve
 {
 public:
   SCurve();
+
+  /// Reset trajectory to initial state.
   void init();
 
+  /// Solve the 1D S-curve path parameters for given kinematic constraints.
+  /// @param Sm Snap maximum.
+  /// @param Jm Jerk maximum.
+  /// @param V0 Initial velocity.
+  /// @param Am Acceleration maximum.
+  /// @param Vm Velocity maximum.
+  /// @param L Total path length.
+  /// @param Jm_out Computed jerk limit.
+  /// @param tj_out Jerk ramp time.
+  /// @param t2_out Constant-acceleration time.
+  /// @param t4_out Cruise time.
+  /// @param t6_out Deceleration constant-acceleration time.
   static void calculate_path(
     float Sm, float Jm, float V0, float Am, float Vm, float L, float & Jm_out, float & tj_out,
     float & t2_out, float & t4_out, float & t6_out);
 
+  /// Plan a 3D trajectory between two waypoints with kinematic limits.
+  /// @param origin Start position in world frame.
+  /// @param destination End position in world frame.
   void calculate_track(
     const Eigen::Vector3f & origin, const Eigen::Vector3f & destination, float speed_xy,
     float speed_up, float speed_down, float accel_xy, float accel_z, float snap_maximum,
     float jerk_maximum);
 
+  /// Set maximum cruise speeds for XY, up, and down.
   void set_speed_max(float speed_xy, float speed_up, float speed_down);
+
+  /// Set and return the origin speed limit.
+  /// @return Clamped origin speed.
   float set_origin_speed_max(float speed);
+
+  /// Set the destination speed limit.
   void set_destination_speed_max(float speed);
 
+  /// Advance the target position along the track by dt seconds.
+  /// @param prev_leg Previous trajectory leg (for blending).
+  /// @param next_leg Next trajectory leg (for corner handling).
+  /// @param wp_radius Waypoint acceptance radius.
+  /// @param accel_corner Corner acceleration limit.
+  /// @param fast_waypoint If true, use fast waypoint switching.
+  /// @param dt Time step in seconds.
+  /// @param target_pos Output position.
+  /// @param target_vel Output velocity.
+  /// @param target_accel Output acceleration.
+  /// @return true if the leg is finished.
   bool advance_target_along_track(
     SCurve & prev_leg, SCurve & next_leg, float wp_radius, float accel_corner, bool fast_waypoint,
     float dt, Eigen::Vector3f & target_pos, Eigen::Vector3f & target_vel,
     Eigen::Vector3f & target_accel);
 
+  /// @return true if the trajectory has completed.
   bool finished();
 
 private:

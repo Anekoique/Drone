@@ -1,3 +1,11 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file yolo_layer.cu
+/// @brief Custom TensorRT plugin implementing the YOLOv5 decoding layer.
+///        The CalDetection CUDA kernel decodes anchor-based predictions
+///        (bbox, objectness, class probabilities) from each YOLO head and writes
+///        results to a flat output buffer with atomic counting.
+
 #ifdef DRONE_HAS_CUDA
 
 #include "drone/perception/detector/cuda_utils.hpp"

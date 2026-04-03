@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file main.cpp
+/// @brief Application entry point. Initializes ROS2, creates the DroneNode,
+///        and spins until shutdown.
+
 #include "drone/mission/drone_node.hpp"
 
 #include <rclcpp/rclcpp.hpp>

@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file frame_transforms.cpp
+/// @brief 2D rotation helpers for converting between compass, world (ENU),
+///        start-frame, and local (body) coordinate systems.
+
 #include "drone/mission/frame_transforms.hpp"
 
 #include <cmath>

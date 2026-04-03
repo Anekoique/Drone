@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file postprocess.cpp
+/// @brief YOLO detection postprocessing: bounding box coordinate mapping from
+///        network input space to original image space, and per-class greedy NMS
+///        to suppress overlapping detections.
+
 #include "drone/perception/detector/postprocess.hpp"
 
 #include <algorithm>
@@ -9,6 +16,9 @@
 namespace drone::detector
 {
 
+/// Map a center-format bounding box from network input coordinates back to the
+/// original image, accounting for letterbox padding. Handles both cases where
+/// width or height is the binding dimension.
 cv::Rect get_rect(const cv::Mat & img, float bbox[4])
 {
   float r_w = static_cast<float>(kInputW) / (img.cols * 1.0f);
@@ -62,6 +72,9 @@ float iou(float lbox[4], float rbox[4])
 
 }  // namespace
 
+/// Per-class greedy non-maximum suppression. Groups detections by class,
+/// sorts by confidence, and iteratively removes detections that overlap
+/// above nms_thresh with the current best.
 void nms(std::vector<RawDetection> & res, float * output, float conf_thresh, float nms_thresh)
 {
   int det_size = sizeof(RawDetection) / sizeof(float);

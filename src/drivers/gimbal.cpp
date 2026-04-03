@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file gimbal.cpp
+/// @brief MAVROS gimbal driver. Publishes mount control commands and subscribes
+///        to mount status for current gimbal orientation feedback.
+
 #include "drone/drivers/gimbal.hpp"
 
 namespace drone

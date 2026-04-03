@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file detection_adapter.cpp
+/// @brief Converts internal Detection structs to ROS2 vision_msgs::Detection2DArray
+///        for publishing and visualization.
+
 #include "drone/perception/detection_adapter.hpp"
 
 #include <vision_msgs/msg/detection2_d.hpp>

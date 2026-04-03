@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_limits.cpp
+/// @brief Unit tests for control limits and YAML loading.
+
 #include "drone/control/limits.hpp"
 
 #include <gtest/gtest.h>

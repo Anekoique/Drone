@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file velocity_controller.cpp
+/// @brief Single-loop velocity controller with per-axis PID and yaw wrapping.
+///        Also provides a fuzzy-PID variant that adapts gains before each compute step.
+
 #include "drone/control/velocity_controller.hpp"
 
 #include <cmath>
@@ -34,6 +40,9 @@ Eigen::Vector4f VelocityController::compute(
   return vel;
 }
 
+/// Fuzzy-augmented velocity control: for each axis, extract current PID gains,
+/// let the fuzzy controller adjust them based on error/delta-error, apply the
+/// updated gains, and then run the standard compute path.
 Eigen::Vector4f VelocityController::compute_fuzzy(
   const Eigen::Vector3f & pos_current, const Eigen::Vector3f & pos_target, float yaw_current,
   float yaw_target, float dt, const Eigen::Vector4f & velocity_feedback, FuzzyPID & fuzzy)

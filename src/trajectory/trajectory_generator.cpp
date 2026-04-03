@@ -1,3 +1,11 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file trajectory_generator.cpp
+/// @brief Time-optimal 3-axis trajectory generator with synchronized polynomial
+///        motion profiles. Each axis uses a cubic acceleration/deceleration ramp
+///        with a constant-velocity cruise phase, synchronized so all axes finish
+///        simultaneously.
+
 #include "drone/trajectory/trajectory_generator.hpp"
 
 #include <algorithm>
@@ -13,6 +21,11 @@ TrajectoryGenerator::TrajectoryGenerator(double speed_factor, std::array<double,
   ddq_max_ *= speed_factor;
 }
 
+/// Evaluate the trajectory at time t for all 3 axes. Each axis follows:
+/// 1. Cubic ramp-up (0 to t1) -- jerk-limited acceleration
+/// 2. Constant velocity (t1 to t2) -- cruise phase
+/// 3. Cubic ramp-down (t2 to tf) -- jerk-limited deceleration
+/// Returns true when all axes have reached their goal within threshold.
 bool TrajectoryGenerator::calculate_desired_values(double t, Vector3d * out)
 {
   using Vector3i = Eigen::Matrix<int, 3, 1, Eigen::ColMajor>;
@@ -53,6 +66,9 @@ bool TrajectoryGenerator::calculate_desired_values(double t, Vector3d * out)
   return std::all_of(finished.begin(), finished.end(), [](bool x) { return x; });
 }
 
+/// Compute per-axis timing parameters (t1, t2, tf) such that the slowest axis
+/// determines the total duration and all axes are synchronized to finish together.
+/// Uses a quadratic solver to find the reduced cruise velocity for each axis.
 void TrajectoryGenerator::calculate_synchronized_values()
 {
   Vector3d dq_reach(dq_max_);

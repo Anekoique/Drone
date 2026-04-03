@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #ifdef DRONE_HAS_CUDA
@@ -25,12 +28,23 @@
 namespace nvinfer1
 {
 
+/// Custom TensorRT plugin implementing the YOLO detection output layer.
+/// Decodes anchor-based predictions into bounding boxes on GPU.
 class API YoloLayerPlugin : public IPluginV2IOExt
 {
 public:
+  /// Construct from parameters.
+  /// @param classCount Number of object classes.
+  /// @param netWidth Network input width.
+  /// @param netHeight Network input height.
+  /// @param maxOut Maximum output detections.
+  /// @param is_segmentation True if the model includes segmentation masks.
+  /// @param vYoloKernel Per-layer anchor definitions.
   YoloLayerPlugin(
     int classCount, int netWidth, int netHeight, int maxOut, bool is_segmentation,
     const std::vector<drone::detector::YoloKernel> & vYoloKernel);
+
+  /// Deserialize from a serialized plugin buffer.
   YoloLayerPlugin(const void * data, size_t length);
   ~YoloLayerPlugin();
 
@@ -40,6 +54,7 @@ public:
   void terminate() TRT_NOEXCEPT override {}
   size_t getWorkspaceSize(int /*maxBatchSize*/) const TRT_NOEXCEPT override { return 0; }
 
+  /// Execute the YOLO decode kernel on GPU.
   int enqueue(
     int batchSize, const void * const * inputs, void * TRT_CONST_ENQUEUE * outputs,
     void * workspace, cudaStream_t stream) TRT_NOEXCEPT override;
@@ -88,6 +103,7 @@ private:
   void ** mAnchor = nullptr;
 };
 
+/// Factory for creating and deserializing YoloLayerPlugin instances.
 class API YoloPluginCreator : public IPluginCreator
 {
 public:
@@ -98,8 +114,11 @@ public:
   const char * getPluginVersion() const TRT_NOEXCEPT override;
   const PluginFieldCollection * getFieldNames() TRT_NOEXCEPT override;
 
+  /// Create a new plugin instance from field collection.
   IPluginV2IOExt * createPlugin(const char * name, const PluginFieldCollection * fc)
     TRT_NOEXCEPT override;
+
+  /// Deserialize a plugin from serialized data.
   IPluginV2IOExt * deserializePlugin(
     const char * name, const void * serialData, size_t serialLength) TRT_NOEXCEPT override;
 

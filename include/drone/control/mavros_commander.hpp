@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <Eigen/Core>
@@ -20,20 +23,36 @@ namespace drone::control
 class MavrosCommander
 {
 public:
+  /// @param node ROS 2 node for creating publishers.
+  /// @param ns MAVROS namespace (e.g. "/mavros/").
   MavrosCommander(rclcpp::Node & node, const std::string & ns);
   MavrosCommander() = delete;
 
+  /// Send a velocity command (vx, vy, vz, yaw_rate).
   void send_velocity(const Eigen::Vector4f & vel);
+
+  /// Send a position setpoint with yaw.
   void send_position(double x, double y, double z, double yaw);
+
+  /// Send a position setpoint from a 4-vector (x, y, z, yaw).
   void send_position(const Eigen::Vector4f & pos_yaw);
+
+  /// Send an acceleration command (ax, ay, az, yaw_accel).
   void send_acceleration(const Eigen::Vector4f & accel);
+
+  /// Send an attitude + thrust command (roll, pitch, yaw, thrust).
   void send_attitude(const Eigen::Vector4f & attitude_thrust);
+
+  /// Publish combined position + velocity setpoint (SET_POSITION_TARGET_LOCAL_NED).
   void publish_setpoint_raw(const Eigen::Vector4f & pos, const Eigen::Vector4f & vel);
+
+  /// Publish a global position setpoint (lat, lon, alt, yaw).
   void publish_setpoint_raw_global(double lat, double lon, double alt, float yaw);
 
   /// Timed velocity: sends vel for duration seconds, returns true when done.
-  /// Returns true and resets timed_active_ when duration has elapsed.
-  /// A subsequent call begins a new timed command.
+  /// @param vel Velocity command (vx, vy, vz, yaw_rate).
+  /// @param duration_sec Duration in seconds.
+  /// @return true when the duration has elapsed.
   bool send_velocity_timed(const Eigen::Vector4f & vel, double duration_sec);
 
 private:

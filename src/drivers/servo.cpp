@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file servo.cpp
+/// @brief Servo control via MAVROS DO_SET_SERVO command. Supports single-shot
+///        PWM setting and timed open-close sequences using ROS2 wall timers.
+
 #include "drone/drivers/servo.hpp"
 
 #include <mavros_msgs/msg/command_code.hpp>
@@ -37,6 +43,8 @@ bool Servo::set_servo(int servo_number, float pwm)
   return true;
 }
 
+/// Open a servo immediately and schedule an auto-close after delay_sec.
+/// The close timer is stored in a per-servo map to support concurrent fires.
 void Servo::fire_servo(int servo_id, float open_pwm, float close_pwm, double delay_sec)
 {
   RCLCPP_INFO(

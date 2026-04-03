@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file inertial_nav.cpp
+/// @brief Inertial navigation data aggregator. Subscribes to MAVROS odometry,
+///        GPS, altitude, IMU, and rangefinder topics using sensor QoS and
+///        reentrant callbacks for low-latency state updates.
+
 #include "drone/drivers/inertial_nav.hpp"
 
 #include <cmath>
@@ -69,6 +76,7 @@ void InertialNav::range_callback(const sensor_msgs::msg::Range::SharedPtr msg)
   rangefinder_height_ = msg->range;
 }
 
+/// Extract yaw from the stored quaternion using the standard ZYX Euler conversion.
 float InertialNav::yaw() const
 {
   float w = orientation_.w(), x = orientation_.x();

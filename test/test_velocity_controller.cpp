@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_velocity_controller.cpp
+/// @brief Unit tests for the velocity controller and fuzzy-PID variant.
+
 #include "drone/control/velocity_controller.hpp"
 
 #include <gtest/gtest.h>

@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file clustering.cpp
+/// @brief K-means clustering (k=3) of target detections in normalized
+///        (position, diameter) space. Used to group nearby circle targets
+///        for airdrop ordering by diameter.
+
 #include "drone/perception/clustering.hpp"
 
 #include <algorithm>
@@ -62,6 +69,9 @@ double distance_3d(const NormalizedSample & a, const NormalizedSample & b)
 
 }  // namespace
 
+/// Run k-means (k=3, max 50 iterations) on z-score normalized (x, y, diameter).
+/// Returns cluster centers in original world coordinates, sorted by diameter.
+/// For fewer than 3 samples, each sample becomes its own cluster.
 std::vector<Target> find_cluster_centers(const std::vector<TargetSample> & samples)
 {
   if (samples.size() < 3) {

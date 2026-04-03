@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_clustering.cpp
+/// @brief Unit tests for k-means target clustering.
+
 #include "drone/perception/clustering.hpp"
 
 #include <gtest/gtest.h>

@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <algorithm>
@@ -6,6 +9,7 @@
 namespace drone
 {
 
+/// Test if a float is exactly zero.
 inline bool is_zero(float v)
 {
   return v == 0.0f;
@@ -29,6 +33,7 @@ inline float constrain_float(float value, float hi, float lo)
   return std::clamp(value, lo, hi);
 }
 
+/// Check if two values are approximately equal within tolerance.
 template <typename T>
 bool is_equal(T a, T b, T tolerance = static_cast<T>(0.001))
 {

@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file drone_node.cpp
+/// @brief Main ROS2 node that orchestrates the complete mission lifecycle.
+///        Runs a 50ms timer loop dispatching to takeoff, airdrop, recon, and
+///        landing handlers based on the current FlyState.
+
 #include "drone/mission/drone_node.hpp"
 
 #include "drone/mission/frame_transforms.hpp"
@@ -9,25 +16,32 @@ using namespace std::chrono_literals;
 namespace drone::mission
 {
 
-DroneNode::DroneNode(const std::string & mavros_ns, const std::string & config_dir)
+DroneNode::DroneNode(const std::string & mavros_ns, const std::string & /*config_dir*/)
 : NodeBase("drone_node", mavros_ns),
   motors_(*this, mavros_ns),
   inav_(*this, mavros_ns),
   servo_(*this, mavros_ns),
   gimbal_(*this, mavros_ns),
-  pos_control_(*this, inav_, config_dir + "/pos_control.yaml"),
+  pos_control_(*this, inav_, "pos_control.yaml"),
   subs_{motors_, inav_, pos_control_, servo_, gimbal_},
-  config_(MissionConfig::load(
-    config_dir + "/mission.yaml", config_dir + "/airdrop.yaml", config_dir + "/landing.yaml")),
+  config_(MissionConfig::load("mission.yaml", "airdrop.yaml", "landing.yaml")),
+  tracker_(inav_, gimbal_, config_),
   takeoff_(subs_, config_),
   airdrop_(subs_, config_),
   recon_(subs_, config_),
   landing_(subs_, config_)
 {
+  // Wire tracker into handlers
+  airdrop_.set_tracker(&tracker_);
+  landing_.set_tracker(&tracker_);
+
   state_pub_ = create_publisher<std_msgs::msg::Int32>("drone/state", 10);
   loop_timer_ = create_wall_timer(50ms, std::bind(&DroneNode::timer_callback, this));
 }
 
+/// Main loop at 20 Hz. Guards against disconnected FCU or uninitialized position,
+/// resets handlers on state transitions, updates the camera model, and dispatches
+/// to the active mission handler based on FlyState.
 void DroneNode::timer_callback()
 {
   // System readiness guard
@@ -54,6 +68,11 @@ void DroneNode::timer_callback()
     }
     prev_state_ = state_;
   }
+
+  // Update camera model with current pose and feed detections
+  tracker_.update_camera_pose();
+  // Note: detector inference and feed_detections() are called externally
+  // or via a detection subscription callback (Phase 7 integration)
 
   float heading = config_.heading_compass_rad;
   float start_yaw = takeoff_.start_yaw();

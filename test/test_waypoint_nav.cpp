@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_waypoint_nav.cpp
+/// @brief Unit tests for waypoint navigation state management.
+
 #include "drone/mission/waypoint_nav.hpp"
 
 #include <gtest/gtest.h>

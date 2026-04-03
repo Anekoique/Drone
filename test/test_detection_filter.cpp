@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_detection_filter.cpp
+/// @brief Unit tests for per-class Kalman detection filtering.
+
 #include "drone/perception/detection_filter.hpp"
 
 #include <gtest/gtest.h>

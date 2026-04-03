@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #ifdef DRONE_HAS_CUDA
@@ -7,6 +10,7 @@
 #include <cassert>
 #include <iostream>
 
+/// Check a CUDA call and abort with diagnostics on failure.
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define CUDA_CHECK(call)                                                                        \
   do {                                                                                          \

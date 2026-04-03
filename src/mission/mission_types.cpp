@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file mission_types.cpp
+/// @brief Loads the complete MissionConfig from three YAML files (mission,
+///        airdrop, landing). Populates zone waypoints, PID defaults, limits,
+///        servo PWM values, and camera-to-drone offsets.
+
 #include "drone/mission/mission_types.hpp"
 
 #include "drone/utils/readyaml.hpp"

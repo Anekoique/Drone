@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <Eigen/Core>
@@ -22,18 +25,28 @@ namespace drone
 class InertialNav
 {
 public:
+  /// @param node ROS 2 node for creating subscribers.
+  /// @param mavros_ns MAVROS namespace.
   InertialNav(rclcpp::Node & node, const std::string & mavros_ns);
 
+  /// Local ENU position from odometry.
   Eigen::Vector3f position() const { return position_; }
-  Eigen::Vector4f velocity() const { return velocity_; }  // .w() = yaw rate
+  /// Velocity (x, y, z, yaw_rate). The w() component is yaw rate.
+  Eigen::Vector4f velocity() const { return velocity_; }
+  /// Orientation quaternion from odometry.
   Eigen::Quaternionf orientation() const { return orientation_; }
+  /// GPS coordinates (lat, lon, alt).
   Eigen::Vector3f gps() const { return gps_; }
+  /// AMSL altitude from MAVROS altitude topic.
   float altitude() const { return altitude_; }
+  /// IMU linear acceleration (m/s^2).
   Eigen::Vector3f linear_acceleration() const { return linear_acceleration_; }
+  /// IMU angular velocity (rad/s).
   Eigen::Vector3f angular_velocity() const { return angular_velocity_; }
+  /// Rangefinder height above ground (m).
   float rangefinder_height() const { return rangefinder_height_; }
 
-  /// Yaw computed from quaternion.
+  /// Yaw computed from quaternion (radians, ENU convention).
   float yaw() const;
 
 private:

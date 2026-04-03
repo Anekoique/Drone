@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
@@ -15,13 +18,21 @@ namespace drone
 class Gimbal
 {
 public:
+  /// @param node ROS 2 node for creating publisher and subscriber.
+  /// @param mavros_ns MAVROS namespace.
   Gimbal(rclcpp::Node & node, const std::string & mavros_ns);
 
   /// Set gimbal angles in degrees.
+  /// @param pitch Pitch angle (degrees, negative = down).
+  /// @param roll Roll angle (degrees).
+  /// @param yaw Yaw angle (degrees).
   void set_gimbal(float pitch, float roll, float yaw);
 
+  /// Current gimbal pitch feedback (degrees).
   double gimbal_pitch() const { return pitch_; }
+  /// Current gimbal roll feedback (degrees).
   double gimbal_roll() const { return roll_; }
+  /// Current gimbal yaw feedback (degrees).
   double gimbal_yaw() const { return yaw_; }
 
 private:

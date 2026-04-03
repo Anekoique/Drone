@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/perception/detection_types.hpp"
@@ -20,7 +23,8 @@ class Detector
 {
 public:
   /// Load one or two TensorRT engine files.
-  /// If h_engine is empty, only circle model is used.
+  /// @param circle_engine Path to the circle detection engine file.
+  /// @param h_engine Path to the H detection engine file (empty to skip).
   Detector(const std::string & circle_engine, const std::string & h_engine = "");
   ~Detector();
 
@@ -30,6 +34,8 @@ public:
   Detector & operator=(Detector &&) noexcept;
 
   /// Run inference on a BGR frame. Returns all detections from both models.
+  /// @param frame Input BGR image (CV_8UC3).
+  /// @return Combined detections from circle and H models.
   std::vector<Detection> detect(const cv::Mat & frame);
 
 private:

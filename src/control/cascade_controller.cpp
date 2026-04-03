@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file cascade_controller.cpp
+/// @brief Two-loop cascade controller: outer loop (position -> velocity target,
+///        P-only) feeds an inner loop (velocity -> acceleration, full PID).
+///        Used for precision position hold with acceleration output.
+
 #include "drone/control/cascade_controller.hpp"
 
 #include <cassert>
@@ -31,6 +38,9 @@ CascadeController::CascadeController(const Config & config)
     "Outer-loop cascade PIDs must be P-only (i=0, d=0)");
 }
 
+/// Run both cascade loops: outer P-only position loop generates velocity targets,
+/// inner full-PID velocity loop generates acceleration commands.
+/// Yaw uses a single-loop PID with shortest-path angular wrapping.
 Eigen::Vector4f CascadeController::compute(
   const Eigen::Vector3f & pos_current, const Eigen::Vector3f & pos_target,
   const Eigen::Vector4f & vel_current, float yaw_current, float yaw_target)

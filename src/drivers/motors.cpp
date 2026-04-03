@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file motors.cpp
+/// @brief Flight controller interface via MAVROS services: arming, mode switching,
+///        home position, takeoff/land commands, and parameter setting. Includes a
+///        multi-step takeoff state machine with retry logic.
+
 #include "drone/drivers/motors.hpp"
 
 #include <chrono>
@@ -93,6 +100,9 @@ bool Motors::set_param(const std::string & name, double value)
   return true;
 }
 
+/// Multi-step takeoff state machine: GUIDED mode -> wait for command ->
+/// arm (with retries) -> set home -> send takeoff command (with retries).
+/// Returns true when system_status reaches MAV_STATE_ACTIVE (4).
 bool Motors::takeoff(float /*current_z*/, float takeoff_altitude, float yaw)
 {
   switch (takeoff_state_) {

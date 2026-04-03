@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file detection_filter.cpp
+/// @brief Per-class Kalman filtering of 2D detections. Tracks position and
+///        velocity in pixel space, prioritizing the detection closest to frame center.
+
 #include "drone/perception/detection_filter.hpp"
 
 #include <algorithm>
@@ -20,6 +26,9 @@ KalmanFilter2D::KalmanFilter2D(double process_noise, double measurement_noise)
   P_ = Eigen::Matrix4d::Identity();
 }
 
+/// Predict-update cycle for the 2D Kalman filter.
+/// State is [x, y, vx, vy]. On first call, initializes state directly from measurement.
+/// Uses Joseph-form covariance update for numerical stability.
 void KalmanFilter2D::update(double x, double y, double dt)
 {
   if (!initialized_) {
@@ -56,6 +65,8 @@ DetectionFilter::DetectionFilter(double process_noise, double measurement_noise)
 {
 }
 
+/// Sort incoming detections by class, rank each class by Manhattan distance to
+/// frame center, and feed the closest detection per class into its Kalman filter.
 void DetectionFilter::update(
   const std::vector<Detection> & detections, double dt, int frame_width, int frame_height)
 {

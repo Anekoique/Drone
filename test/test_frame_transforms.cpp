@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_frame_transforms.cpp
+/// @brief Unit tests for 2D frame rotation utilities.
+
 #include "drone/mission/frame_transforms.hpp"
 
 #include <gtest/gtest.h>

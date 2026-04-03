@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/control/fuzzy_pid.hpp"
@@ -15,6 +18,7 @@ namespace drone::control
 class VelocityController
 {
 public:
+  /// PID gains and limits configuration.
   struct Config
   {
     PID::Defaults pid_x;
@@ -28,18 +32,31 @@ public:
   VelocityController() = default;
 
   /// Compute velocity command from position error.
-  /// velocity_feedback: current velocity from InertialNav (x,y,z,yaw_rate)
+  /// @param pos_current Current position (x, y, z).
+  /// @param pos_target Target position (x, y, z).
+  /// @param yaw_current Current yaw (radians).
+  /// @param yaw_target Target yaw (radians).
+  /// @param dt Time step in seconds.
+  /// @param velocity_feedback Current velocity from InertialNav (x, y, z, yaw_rate).
+  /// @return Velocity command (vx, vy, vz, yaw_rate).
   Eigen::Vector4f compute(
     const Eigen::Vector3f & pos_current, const Eigen::Vector3f & pos_target, float yaw_current,
     float yaw_target, float dt, const Eigen::Vector4f & velocity_feedback);
 
   /// Compute with fuzzy gain adaptation.
+  /// @param fuzzy FuzzyPID instance for online gain adjustment.
+  /// @return Velocity command (vx, vy, vz, yaw_rate).
   Eigen::Vector4f compute_fuzzy(
     const Eigen::Vector3f & pos_current, const Eigen::Vector3f & pos_target, float yaw_current,
     float yaw_target, float dt, const Eigen::Vector4f & velocity_feedback, FuzzyPID & fuzzy);
 
+  /// Update kinematic limits.
   void set_limits(const Limits & limits);
+
+  /// Reset all PID integrators and state.
   void reset_pid();
+
+  /// Reconfigure all PID gains and limits.
   void set_pid_config(const Config & config);
 
   PID & pid_x() { return pid_x_; }

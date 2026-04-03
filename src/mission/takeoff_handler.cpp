@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file takeoff_handler.cpp
+/// @brief Takeoff initialization and execution: captures start position/yaw,
+///        sets home, configures gimbal, and delegates to the Motors takeoff FSM.
+
 #include "drone/mission/takeoff_handler.hpp"
 
 namespace drone::mission

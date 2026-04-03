@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_fuzzy_pid.cpp
+/// @brief Unit tests for the fuzzy logic PID gain scheduler.
+
 #include "drone/control/fuzzy_pid.hpp"
 
 #include <gtest/gtest.h>

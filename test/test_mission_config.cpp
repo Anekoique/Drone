@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_mission_config.cpp
+/// @brief Unit tests for MissionConfig YAML loading.
+
 #include "drone/mission/mission_types.hpp"
 
 #include <gtest/gtest.h>

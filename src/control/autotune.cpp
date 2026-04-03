@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file autotune.cpp
+/// @brief Relay-based PID auto-tuner using the Ziegler-Nichols method.
+///        Oscillates the system around a setpoint, measures ultimate gain (Ku)
+///        and period (Tu) from peak analysis, and computes PID gains.
+
 #include "drone/control/autotune.hpp"
 
 #include <cmath>
@@ -86,6 +93,7 @@ bool fsm_reset(TuneId id)
   return true;
 }
 
+/// Population standard deviation for convergence checking.
 float calc_std_dev(float * data, uint32_t len)
 {
   if (!data || len == 0) return 0;
@@ -104,6 +112,8 @@ void peak_reset(TuneId id, int32_t ch, float sp)
   p.min_peak = {sp, 0};
 }
 
+/// Compute PID gains from the measured ultimate gain and period
+/// using Ziegler-Nichols tuning formulas (Kp=0.6*Ku for PID, 0.8*Ku for PI).
 bool calc_pid(TuneId id)
 {
   if (id >= kAutoTuneMaxObjects || g_objects[id].id < 0) return false;
@@ -160,6 +170,9 @@ bool tune_release(TuneId id)
   return false;
 }
 
+/// Run one iteration of the relay auto-tune state machine.
+/// Alternates the output between high and low around the setpoint,
+/// records peaks, and checks amplitude/cycle standard deviation convergence.
 TuneState tune_work(TuneId id, float feedback, float * output, uint32_t delay_ms)
 {
   if (id >= kAutoTuneMaxObjects || g_objects[id].id < 0) return TuneState::kFail;

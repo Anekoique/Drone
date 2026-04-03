@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_yaw_utils.cpp
+/// @brief Unit tests for yaw normalization and error computation.
+
 #include "drone/control/yaw_utils.hpp"
 
 #include <gtest/gtest.h>

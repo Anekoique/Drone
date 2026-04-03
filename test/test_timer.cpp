@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_timer.cpp
+/// @brief Unit tests for the Timer utility.
+
 #include "drone/utils/timer.hpp"
 
 #include <gtest/gtest.h>

@@ -1,8 +1,11 @@
 # Camera device path (V4L2 or CSI)
 camera_device: /dev/video0
 
-# TensorRT model path (relative to package share or absolute)
-model_path: model/best.engine
+# TensorRT model paths (relative to package share or absolute)
+# Build engines with: ./scripts/build_engine.sh export model/best_circle.pt
+#                     ./scripts/build_engine.sh onnx model/best_circle.onnx --fp16
+circle_model_path: model/best_circle.engine
+h_model_path: model/best_H.engine
 
 # Camera intrinsic parameters
 fx: 611.4

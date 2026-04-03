@@ -2,3 +2,9 @@
 build/
 install/
 log/
+
+# Model files (too large for git, download separately)
+model/*.pt
+model/*.onnx
+model/*.engine
+model/*.wts

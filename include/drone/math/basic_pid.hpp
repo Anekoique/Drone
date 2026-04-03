@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/utils/readyaml.hpp"
@@ -15,6 +18,9 @@ class BasicPID
 public:
   BasicPID() = default;
 
+  /// Load PID gains and limits from a YAML config file.
+  /// @param filename YAML filename in the package config directory.
+  /// @param pid_name Key under which PID parameters are stored.
   void readPIDParameters(const std::string & filename, const std::string & pid_name)
   {
     try {
@@ -29,12 +35,24 @@ public:
     }
   }
 
+  /// Read a single float value from a YAML config file.
+  /// @param filename YAML filename in the package config directory.
+  /// @param goal_name Top-level key to read.
+  /// @return The float value.
   float read_goal(const std::string & filename, const std::string & goal_name)
   {
     YAML::Node config = ConfigLoader::load(filename);
     return config[goal_name].as<float>();
   }
 
+  /// Compute velocity commands for 3 axes. Results stored in velocity_x/y/z.
+  /// @param x_target Target X position.
+  /// @param y_target Target Y position.
+  /// @param z_target Target Z position.
+  /// @param x_now Current X position.
+  /// @param y_now Current Y position.
+  /// @param z_now Current Z position.
+  /// @param dt Time step in seconds.
   void Mypid(
     float x_target, float y_target, float z_target, float x_now, float y_now, float z_now, float dt)
   {
@@ -43,6 +61,11 @@ public:
     velocity_z = compute(z_target, z_now, dt);
   }
 
+  /// Compute a single-axis PID output.
+  /// @param setpoint Desired value.
+  /// @param measured Current value.
+  /// @param dt Time step in seconds.
+  /// @return Clamped control output.
   float compute(float setpoint, float measured, float dt)
   {
     float error = setpoint - measured;

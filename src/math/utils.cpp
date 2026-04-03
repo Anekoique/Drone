@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file utils.cpp
+/// @brief Math utility functions: vector equality, and kinematic limit computation
+///        that resolves XY/Z speed/acceleration constraints along a 3D direction.
+
 #include "drone/math/types.hpp"
 
 #include <cmath>
@@ -11,6 +17,9 @@ bool is_equal(Eigen::Vector4f a, Eigen::Vector4f b, float tolerance)
          std::abs(a.z() - b.z()) < tolerance && std::abs(a.w() - b.w()) < tolerance;
 }
 
+/// Compute the maximum scalar speed/acceleration along a 3D direction vector,
+/// constrained by separate horizontal (XY) and vertical (up/down) limits.
+/// Projects the direction onto XY and Z components and picks the binding constraint.
 float kinematic_limit(Eigen::Vector3f direction, float max_xy, float max_z_pos, float max_z_neg)
 {
   if (

@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file scurve.cpp
+/// @brief S-Curve trajectory planner using raised-cosine jerk profiles.
+///        Generates 23-segment paths with smooth acceleration/deceleration
+///        and supports runtime speed adjustments. Ported from ArduPilot SCurve.
+
 #include "drone/math/scurve.hpp"
 
 #include "drone/math/types.hpp"

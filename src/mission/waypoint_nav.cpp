@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file waypoint_nav.cpp
+/// @brief Sequential waypoint navigation within a zone. Converts normalized
+///        waypoint coordinates to world frame and advances on a per-waypoint timer.
+
 #include "drone/mission/waypoint_nav.hpp"
 
 #include <cmath>
@@ -5,6 +11,9 @@
 namespace drone::mission
 {
 
+/// Advance to the next waypoint in the zone pattern. Each waypoint is specified
+/// as normalized (0-1) coordinates scaled by zone length/width, rotated by
+/// compass heading, and offset from the zone origin. Uses time-based transitions.
 bool waypoint_goto_next(
   Subsystems & subs, const ZoneConfig & zone, const Eigen::Vector2f & zone_origin_world,
   float heading_rad, float /*start_yaw*/, WaypointState & state, float timeout_per_wp,

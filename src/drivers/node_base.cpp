@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file node_base.cpp
+/// @brief Base ROS2 node with common parameters (sim_mode, debug_mode, etc.)
+///        and startup timestamp tracking.
+
 #include "drone/drivers/node_base.hpp"
 
 namespace drone

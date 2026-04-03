@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file detector.cpp
+/// @brief TensorRT-based YOLO object detector. Loads serialized engine files,
+///        runs GPU inference with CUDA preprocessing, and applies NMS postprocessing.
+///        Supports dual models (circle + H-marker) with unified class ID offsets.
+
 #ifdef DRONE_HAS_CUDA
 
 #include "drone/perception/detector/detector.hpp"

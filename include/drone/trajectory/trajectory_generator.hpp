@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <Eigen/Core>
@@ -7,26 +10,40 @@
 namespace drone
 {
 
+/// Robot state snapshot for trajectory generation.
 struct RobotState
 {
-  std::array<double, 3> q_d{};
+  std::array<double, 3> q_d{};  ///< Current desired joint/position values
 };
 
+/// Time-synchronized S-curve trajectory generator for 3 axes.
+/// Computes smooth position deltas given kinematic constraints.
 class TrajectoryGenerator
 {
 public:
   using Vector3d = Eigen::Matrix<double, 3, 1, Eigen::ColMajor>;
 
   TrajectoryGenerator() = default;
+
+  /// @param speed_factor Scaling factor for maximum velocity.
+  /// @param q_goal Goal position [x, y, z].
   TrajectoryGenerator(double speed_factor, std::array<double, 3> q_goal);
 
+  /// Set per-axis maximum velocity.
+  /// @param dq_max Array of [vx_max, vy_max, vz_max].
   void set_max_velocity(std::array<double, 3> dq_max);
+
+  /// Set per-axis maximum acceleration.
+  /// @param ddq_max Array of [ax_max, ay_max, az_max].
   void set_max_acceleration(std::array<double, 3> ddq_max);
 
   /// Compute trajectory step. Returns true when motion is complete.
+  /// @param state Current robot state.
+  /// @param time Current time in seconds.
+  /// @return true when the trajectory has reached the goal.
   bool operator()(const RobotState & state, double time);
 
-  Vector3d delta_q_d = Vector3d::Zero();
+  Vector3d delta_q_d = Vector3d::Zero();  ///< Position delta output for this step
 
 private:
   static constexpr double kMotionFinishedThreshold = 2e-3;

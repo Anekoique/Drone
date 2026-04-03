@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_camera_model.cpp
+/// @brief Unit tests for the pinhole camera model and coordinate transforms.
+
 #include "drone/perception/camera_model.hpp"
 
 #include <gtest/gtest.h>

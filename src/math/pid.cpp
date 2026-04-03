@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file pid.cpp
+/// @brief Full-featured PID controller with feedforward, derivative filtering via
+///        least-squares history, anti-windup with back-calculation, incremental
+///        mode, and optional dead-zone support.
+
 #include "drone/math/pid.hpp"
 
 #include "drone/math/utils.hpp"
@@ -88,6 +95,10 @@ void PID::get_pid(float & kp, float & ki, float & kd)
   kd = _kd;
 }
 
+/// Compute PID output given current measurement and target setpoint.
+/// Supports two derivative modes: velocity-feedback (when velocity is finite)
+/// and history-based least-squares fit (when velocity is NaN/Inf).
+/// The use_increment flag switches between positional and incremental PID.
 float PID::update_all(
   float measurement, float target, float dt, float limit, float velocity, bool use_increment)
 {
@@ -160,6 +171,8 @@ float PID::update_all(
   return _pid_info.output;
 }
 
+/// Incremental PID: computes an output delta rather than absolute output.
+/// Uses three-point backward difference for both P and D terms.
 float PID::update_all_increment(float measurement, float target, float dt, float limit)
 {
   _pid_info.target = target;
@@ -208,6 +221,12 @@ float PID::update_all_increment(float measurement, float target, float dt, float
   return _pid_info.output_increment = _incr_output;
 }
 
+/// Update integral term with multi-layered anti-windup:
+/// 1. Zero-crossing decay (0.8x when error sign differs from integral sign)
+/// 2. Saturation guard (skip accumulation when output is saturated and error
+///    would make it worse)
+/// 3. Back-calculation feedback (Ki/Kp ratio drives integral toward saturation bound)
+/// 4. Near-zero decay (0.99x when error < 0.05 to reduce steady-state drift)
 void PID::update_i(float dt, float limit)
 {
   if (is_zero(_pid_info._kI) || !is_positive(dt)) {
@@ -313,6 +332,9 @@ float PID::smooth_data(float current_value, float alpha)
   return smoothed_value;
 }
 
+/// Compute derivative using a least-squares linear fit over the error history
+/// buffer. Falls back to simple backward difference when the history buffer
+/// is not yet full.
 float PID::calculate_improved_derivative(float current_time, float dt)
 {
   _error_history[_history_index] = _error;

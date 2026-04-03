@@ -138,6 +138,7 @@ add_library(drone_mission
   src/mission/mission_types.cpp
   src/mission/frame_transforms.cpp
   src/mission/waypoint_nav.cpp
+  src/mission/target_tracker.cpp
   src/mission/takeoff_handler.cpp
   src/mission/airdrop_handler.cpp
   src/mission/recon_handler.cpp
@@ -149,7 +150,7 @@ target_include_directories(drone_mission PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(drone_mission PUBLIC drone_drivers drone_control drone_utils)
+target_link_libraries(drone_mission PUBLIC drone_drivers drone_control drone_perception drone_utils)
 ament_target_dependencies(drone_mission PUBLIC
   rclcpp std_msgs mavros_msgs geometry_msgs Eigen3)
 target_include_directories(drone_mission SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
@@ -259,6 +260,18 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_waypoint_nav test/test_waypoint_nav.cpp)
   target_link_libraries(test_waypoint_nav drone_mission)
+
+  # End-to-end and integration tests
+  ament_add_gtest(test_target_tracker test/test_target_tracker.cpp)
+  target_link_libraries(test_target_tracker drone_mission)
+
+  ament_add_gtest(test_integration test/test_integration.cpp)
+  target_link_libraries(test_integration drone_mission)
+
+  # End-to-end system test (requires rclcpp::init)
+  ament_add_gtest(test_e2e_system test/test_e2e_system.cpp)
+  target_link_libraries(test_e2e_system drone_mission)
+  ament_target_dependencies(test_e2e_system rclcpp std_msgs)
 endif()
 
 ament_package()

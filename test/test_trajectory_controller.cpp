@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_trajectory_controller.cpp
+/// @brief Unit tests for the trajectory controller modes.
+
 #include "drone/control/trajectory_controller.hpp"
 
 #include <gtest/gtest.h>

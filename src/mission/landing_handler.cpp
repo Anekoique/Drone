@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file landing_handler.cpp
+/// @brief State machine for the landing phase: RTL, visual approach to H-marker
+///        using camera tracking, controlled descent, and final LAND mode switch.
+
 #include "drone/mission/landing_handler.hpp"
 
 #include "drone/mission/frame_transforms.hpp"
@@ -12,6 +18,9 @@ LandingHandler::LandingHandler(Subsystems & subs, const MissionConfig & config)
 {
 }
 
+/// Execute the landing state machine.
+/// States: rtl -> wait (18s for auto-descent) -> visual_approach (track H-marker
+/// with surround search fallback) -> descent (slow velocity command) -> land.
 FlyState LandingHandler::execute(float heading_rad, float start_yaw)
 {
   switch (doland_state_) {
@@ -47,9 +56,18 @@ FlyState LandingHandler::execute(float heading_rad, float start_yaw)
         approach_initialized_ = true;
       }
 
-      // TODO Phase 7: detector integration for H-target detection
-      // Surround search pattern when target not detected (>2s)
-      if (target_loss_timer_.elapsed() > 2.0) {
+      // Check H-marker detection via tracker
+      bool h_detected = tracker_ && tracker_->has_target(TargetClass::kH);
+
+      if (h_detected) {
+        // Visual servo approach to H-marker
+        bool converged = catch_target(
+          subs_, *tracker_, TargetClass::kH, config_.landing.tar_pixel, config_.landing.tar_z, 0,
+          config_.landing.accuracy, config_.landing.pid, config_.landing.limits);
+        target_loss_timer_ = Timer{};
+        (void)converged;
+      } else if (target_loss_timer_.elapsed() > 2.0) {
+        // Surround search pattern when H not detected for >2 seconds
         float offset = static_cast<float>(surround_land_) * config_.landing.surround_step;
         auto search =
           compass_to_world(config_.landing.scout_x + offset, config_.landing.scout_y, heading_rad);
@@ -64,8 +82,6 @@ FlyState LandingHandler::execute(float heading_rad, float start_yaw)
         }
         target_loss_timer_ = Timer{};
       }
-
-      // TODO Phase 7: catch_target() visual servo approach when H detected
 
       // Altitude check or timeout
       if (
@@ -97,6 +113,8 @@ FlyState LandingHandler::execute(float heading_rad, float start_yaw)
   return FlyState::landing;
 }
 
+/// Alternative landing mode: fly back to the takeoff origin at 2m altitude,
+/// wait for arrival or system standby, then switch to LAND.
 FlyState LandingHandler::land_to_start()
 {
   switch (lts_state_) {

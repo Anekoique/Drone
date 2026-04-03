@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include <Eigen/Core>
@@ -10,7 +13,7 @@
 namespace drone
 {
 
-/// Pure geometry camera model. Handles pixel↔world transforms with distortion.
+/// Pure geometry camera model. Handles pixel<->world transforms with distortion.
 /// No ROS dependencies. Coordinate frames: ENU (world), NED (MAVLink), ESD (camera).
 class CameraModel
 {
@@ -18,12 +21,28 @@ public:
   CameraModel() = default;
 
   // --- Intrinsics ---
+
+  /// Set camera intrinsic parameters.
+  /// @param fx Focal length X (pixels).
+  /// @param fy Focal length Y (pixels).
+  /// @param cx Principal point X (pixels).
+  /// @param cy Principal point Y (pixels).
+  /// @param width Image width (pixels).
+  /// @param height Image height (pixels).
   void set_intrinsics(double fx, double fy, double cx, double cy, double width, double height);
+
+  /// Set radial and tangential distortion coefficients.
   void set_distortion(double k1, double k2, double p1, double p2, double k3);
 
   // --- Extrinsics (updated per frame) ---
+
+  /// Set camera offset relative to the parent body frame.
   void set_relative_position(const Eigen::Vector3d & offset);
+
+  /// Set camera rotation relative to the parent body frame (Euler angles).
   void set_relative_rotation(const Eigen::Vector3d & rotation);
+
+  /// Set parent body pose in world frame (position + Euler angles).
   void set_parent_pose(const Eigen::Vector3d & position, const Eigen::Vector3d & rotation);
 
   /// Camera world position (parent + rotated offset).
@@ -34,13 +53,13 @@ public:
   /// Undistort a full frame using precomputed remap.
   cv::Mat undistort(const cv::Mat & frame) const;
 
-  /// Pixel → normalized coords with distortion correction.
+  /// Pixel -> normalized coords with distortion correction.
   Eigen::Vector2d pixel_to_normalized(const Eigen::Vector2d & pixel) const;
 
-  /// World point → pixel coords. Returns nullopt if behind camera or out of frame.
+  /// World point -> pixel coords. Returns nullopt if behind camera or out of frame.
   std::optional<Eigen::Vector2d> world_to_pixel(const Eigen::Vector3d & world_point) const;
 
-  /// Pixel → world position at given object height (ray-plane intersection).
+  /// Pixel -> world position at given object height (ray-plane intersection).
   std::optional<Eigen::Vector3d> pixel_to_world(
     const Eigen::Vector2d & pixel, double object_height = 0.0) const;
 
@@ -52,9 +71,10 @@ public:
 
   double fx() const { return fx_; }
   double fy() const { return fy_; }
+  double width() const { return width_; }
+  double height() const { return height_; }
 
 private:
-  // Rotation matrix: world (ENU) → camera
   Eigen::Matrix3d rotation_world_to_camera() const;
   Eigen::Matrix3d rotation_camera_to_world() const;
   Eigen::Vector2d apply_distortion(const Eigen::Vector2d & point) const;

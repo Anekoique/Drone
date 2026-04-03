@@ -144,6 +144,12 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 | CMake executable + launch install | done | drone_node executable, launch/ installed to share |
 | Camera device + model path config | done | Added to camera.yaml (perception layer) |
 | .clang-tidy config | done | bugprone, cert, cppcoreguidelines, performance, readability |
+| scripts/build_engine.sh | done | TensorRT engine build: ONNX/PyTorch export + trtexec |
+| scripts/sim.sh | done | Gazebo SITL launcher (4 terminals) |
+| TargetTracker | done | Kalman filter + pixel-to-world + k-means clustering bridge |
+| catch_target visual servo | done | Pixel-level PID for airdrop and H-marker landing |
+| AirdropHandler detector integration | done | tracker-guided flight with circle_counter fallback |
+| LandingHandler detector integration | done | visual_approach with H-marker catch_target + surround search |
 | PLAN/REVIEW iteration | done | 1 round: 00 approved (0 blockers, 4 non-blocking) |
 
 ---
@@ -156,9 +162,16 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 | test_basic_pid (5 tests) | done | Default, proportional, limits, integral, Mypid |
 | test_scurve (3 tests) | done | calculate_path valid times, zero distance, init finished |
 | test_waypoint_nav (3 tests) | done | Default values, reset clears, timer restart |
+| test_target_tracker (4 tests) | done | Convergence logic, pixel normalization, y-flip |
+| test_integration (9 tests) | done | Detection to clustering, camera pixel-to-world, Kalman, PID convergence |
+| test_e2e_system (5 tests) | done | Full DroneNode construction, state publisher, timer safety |
 | GitHub Actions CI | done | Format check + build/test on ROS Humble (since Phase 0) |
 | clang-format CI check | done | Already in ci.yml since Phase 0 |
 | clang-tidy config | done | .clang-tidy added (warning-only, non-blocking) |
-| Docker build verification | done | 225 tests, 0 errors, 0 failures |
-| Mock MAVROS integration tests | deferred | Requires MAVROS mock infrastructure (too complex) |
+| Doxygen comments | done | All headers and sources: classes, methods, @file, @param |
+| Copyright headers | done | HDU-DXY-Team MPL-2.0 SPDX on all 82 source files |
+| docs/ARCHITECTURE.md | done | Module graph, CMake targets, data flow, coordinate frames |
+| docs/USAGE.md | done | Build, SITL simulation, run, engine building, ROS topics |
+| Docker build verification | done | 251 tests, 0 errors, 0 failures |
+| Mock MAVROS integration tests | deferred | Requires MAVROS mock infrastructure |
 | 80%+ coverage reporting | deferred | lcov integration with ament is non-trivial |

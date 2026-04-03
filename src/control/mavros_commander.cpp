@@ -1,3 +1,9 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file mavros_commander.cpp
+/// @brief MAVROS command interface. Publishes velocity, position, acceleration,
+///        attitude, and raw setpoint messages to the flight controller via ROS2 topics.
+
 #include "drone/control/mavros_commander.hpp"
 
 #include <cmath>
@@ -78,6 +84,8 @@ void MavrosCommander::send_attitude(const Eigen::Vector4f & attitude_thrust)
   attitude_pub_->publish(msg);
 }
 
+/// Publish combined position + velocity setpoint via setpoint_raw/local.
+/// Ignores acceleration fields (used for circle/orbit with velocity feedforward).
 void MavrosCommander::publish_setpoint_raw(const Eigen::Vector4f & pos, const Eigen::Vector4f & vel)
 {
   mavros_msgs::msg::PositionTarget msg;
@@ -109,6 +117,8 @@ void MavrosCommander::publish_setpoint_raw_global(double lat, double lon, double
   raw_global_pub_->publish(msg);
 }
 
+/// Send a constant velocity command for a fixed duration, then stop.
+/// Tracks elapsed time internally; returns true when the duration has expired.
 bool MavrosCommander::send_velocity_timed(const Eigen::Vector4f & vel, double duration_sec)
 {
   if (!timed_active_) {

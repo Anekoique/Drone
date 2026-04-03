@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 
 #include "drone/control/limits.hpp"
@@ -14,31 +17,42 @@ namespace drone::control
 class CascadeController
 {
 public:
+  /// Configuration with outer (position) and inner (velocity) PID gains.
   struct Config
   {
-    PID::Defaults pid_px;
-    PID::Defaults pid_py;
-    PID::Defaults pid_pz;
-    PID::Defaults pid_vx;
-    PID::Defaults pid_vy;
-    PID::Defaults pid_vz;
-    PID::Defaults pid_yaw;
+    PID::Defaults pid_px;   ///< Position X PID gains
+    PID::Defaults pid_py;   ///< Position Y PID gains
+    PID::Defaults pid_pz;   ///< Position Z PID gains
+    PID::Defaults pid_vx;   ///< Velocity X PID gains
+    PID::Defaults pid_vy;   ///< Velocity Y PID gains
+    PID::Defaults pid_vz;   ///< Velocity Z PID gains
+    PID::Defaults pid_yaw;  ///< Yaw PID gains
     Limits limits;
-    float dt_outer = 0.1f;  // position -> velocity loop timestep
-    float dt_inner = 1.0f;  // velocity -> acceleration loop timestep
+    float dt_outer = 0.1f;  ///< Position -> velocity loop timestep
+    float dt_inner = 1.0f;  ///< Velocity -> acceleration loop timestep
   };
 
   explicit CascadeController(const Config & config);
   CascadeController() = default;
 
   /// Full cascade: position error -> velocity -> acceleration command.
-  /// Uses dt_outer for position PIDs and dt_inner for velocity PIDs.
+  /// @param pos_current Current position (x, y, z).
+  /// @param pos_target Target position (x, y, z).
+  /// @param vel_current Current velocity (vx, vy, vz, yaw_rate).
+  /// @param yaw_current Current yaw (radians).
+  /// @param yaw_target Target yaw (radians).
+  /// @return Acceleration command (ax, ay, az, yaw_accel).
   Eigen::Vector4f compute(
     const Eigen::Vector3f & pos_current, const Eigen::Vector3f & pos_target,
     const Eigen::Vector4f & vel_current, float yaw_current, float yaw_target);
 
+  /// Update kinematic limits.
   void set_limits(const Limits & limits);
+
+  /// Reset all PID integrators.
   void reset_pid();
+
+  /// Reconfigure all PID gains and limits.
   void set_pid_config(const Config & config);
 
 private:

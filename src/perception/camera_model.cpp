@@ -1,3 +1,10 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file camera_model.cpp
+/// @brief Pinhole camera model with Brown-Conrady distortion. Handles
+///        ENU/NED/ESD frame conversions, pixel-to-world ray casting, and
+///        world-to-pixel projection for target localization.
+
 #include "drone/perception/camera_model.hpp"
 
 #include <cmath>
@@ -62,6 +69,8 @@ void CameraModel::set_parent_pose(
 // Note: roll matrix uses sin(roll) at (1,2) and -sin(roll) at (2,1).
 // This matches the legacy CameraGimbal.h convention used in production.
 // Do NOT change without recalibrating the camera system.
+/// Build a 3x3 rotation matrix from roll-pitch-yaw angles (NED convention).
+/// Composition order: R_yaw * R_pitch * R_roll.
 static Eigen::Matrix3d make_rotation(const Eigen::Vector3d & rpy)
 {
   double roll = rpy[0], pitch = rpy[1], yaw = rpy[2];
@@ -78,9 +87,10 @@ static Eigen::Matrix3d make_rotation(const Eigen::Vector3d & rpy)
   return R_yaw * R_pitch * R_roll;
 }
 
+/// Compute the camera world position by rotating the body-frame camera offset
+/// through ENU->NED, applying the parent rotation, then converting back to ENU.
 Eigen::Vector3d CameraModel::get_position() const
 {
-  // Rotate camera offset by parent (drone) rotation only, not compound rotation
   Eigen::Matrix3d R_parent = make_rotation(parent_rotation_);
   return kNED2ENU * R_parent * kENU2NED * relative_position_ + parent_position_;
 }
@@ -97,6 +107,8 @@ Eigen::Matrix3d CameraModel::rotation_camera_to_world() const
   return rotation_world_to_camera().transpose();
 }
 
+/// Undistort a pixel coordinate and return normalized image coordinates
+/// using OpenCV's undistortPoints (removes both radial and tangential distortion).
 Eigen::Vector2d CameraModel::pixel_to_normalized(const Eigen::Vector2d & pixel) const
 {
   cv::Mat camera_matrix = (cv::Mat_<double>(3, 3) << fx_, 0, cx_, 0, fy_, cy_, 0, 0, 1);
@@ -109,6 +121,8 @@ Eigen::Vector2d CameraModel::pixel_to_normalized(const Eigen::Vector2d & pixel) 
   return Eigen::Vector2d(dst[0].x, dst[0].y);
 }
 
+/// Apply Brown-Conrady distortion model to normalized image coordinates.
+/// Computes radial (k1,k2,k3) and tangential (p1,p2) distortion.
 Eigen::Vector2d CameraModel::apply_distortion(const Eigen::Vector2d & point) const
 {
   double x = point.x(), y = point.y();
@@ -130,6 +144,9 @@ cv::Mat CameraModel::undistort(const cv::Mat & frame) const
   return result;
 }
 
+/// Project a world point to pixel coordinates. Converts to camera frame via
+/// ENU->NED->ESD, applies distortion, and returns nullopt if the point is
+/// behind the camera or outside the image bounds.
 std::optional<Eigen::Vector2d> CameraModel::world_to_pixel(
   const Eigen::Vector3d & world_point) const
 {
@@ -152,6 +169,10 @@ std::optional<Eigen::Vector2d> CameraModel::world_to_pixel(
   return std::nullopt;  // out of frame
 }
 
+/// Back-project a pixel to a 3D world point on a horizontal plane at z=object_height.
+/// Undistorts the pixel, constructs a camera ray through ESD->NED->ENU conversion,
+/// and intersects it with the ground plane. Returns nullopt if the ray is parallel
+/// or points away from the plane.
 std::optional<Eigen::Vector3d> CameraModel::pixel_to_world(
   const Eigen::Vector2d & pixel, double object_height) const
 {
@@ -173,6 +194,8 @@ std::optional<Eigen::Vector3d> CameraModel::pixel_to_world(
   return get_position() + s * ray_world;
 }
 
+/// Estimate how many pixels a world-space circle of given radius would span
+/// at the given 3D center position. Uses perspective projection depth.
 double CameraModel::calculate_pixel_radius(
   const Eigen::Vector3d & center, double world_radius) const
 {
@@ -183,6 +206,8 @@ double CameraModel::calculate_pixel_radius(
   return std::max((world_radius / cam_point.z()) * fx_, 5.0);
 }
 
+/// Convert a pixel diameter to real-world diameter using the pinhole model:
+/// real_size = pixel_size * distance / focal_length.
 double CameraModel::calculate_real_diameter(double pixel_diameter, double distance) const
 {
   if (fx_ <= 0.01) return 0.0;

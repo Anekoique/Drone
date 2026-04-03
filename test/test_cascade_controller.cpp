@@ -1,3 +1,8 @@
+// Copyright (c) 2024-2026 HDU-DXY-Team
+// SPDX-License-Identifier: MPL-2.0
+/// @file test_cascade_controller.cpp
+/// @brief Unit tests for the cascade position-velocity controller.
+
 #include "drone/control/cascade_controller.hpp"
 
 #include <gtest/gtest.h>
