@@ -102,11 +102,17 @@ Tracks completion status for each phase in [ROADMAP.md](./ROADMAP.md).
 
 | Task | Status | Notes |
 |---|---|---|
-| Create src/control/ | pending | |
-| Split PosControl into sub-controllers | pending | |
-| Move PID constants to config | pending | |
-| Extract fuzzy PID rules to YAML | pending | |
-| Unit tests | pending | |
+| Create drone_control library target | done | Non-ROS: yaw_utils, velocity_controller, cascade_controller, trajectory_controller |
+| VelocityController | done | Ports input_pos_xyz/input_pos_xyz_yaw, fuzzy adaptation |
+| CascadeController | done | Dual timestep (dt_outer/dt_inner), ports cascade PID path |
+| TrajectoryController | done | Waypoint-returning API, state structs replace static locals |
+| MavrosCommander | done | All 6 publishers, send_velocity_timed, attitude support |
+| PosControl facade | done | Composes all sub-controllers, FuzzyConfig ownership model |
+| Move PID constants to config | done | config/pos_control.yaml with all 10 PID sets + limits |
+| Extract fuzzy PID rules to YAML | done | 21x7 rule base, 28 MF params, 8 controller configs |
+| PLAN/REVIEW iteration | done | 2 rounds: 00 blocked (5 HIGH), 01 approved |
+| Unit tests | done | yaw_utils(14), velocity_controller(6), cascade(5), trajectory(7), limits(5) |
+| Docker build verification | done | 168 tests, 0 errors, 0 failures |
 
 ---
 

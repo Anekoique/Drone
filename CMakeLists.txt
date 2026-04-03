@@ -97,20 +97,38 @@ else()
   message(STATUS "No CUDA compiler — detector excluded")
 endif()
 
-# --- Drivers library (MAVROS interface) ---
+# --- Control library (position control, no ROS) ---
+add_library(drone_control
+  src/control/yaw_utils.cpp
+  src/control/velocity_controller.cpp
+  src/control/cascade_controller.cpp
+  src/control/trajectory_controller.cpp
+)
+
+target_include_directories(drone_control PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(drone_control PUBLIC drone_utils)
+ament_target_dependencies(drone_control PUBLIC Eigen3)
+target_include_directories(drone_control SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
+
+# --- Drivers library (MAVROS interface + ROS-coupled control) ---
 add_library(drone_drivers
   src/drivers/node_base.cpp
   src/drivers/motors.cpp
   src/drivers/inertial_nav.cpp
   src/drivers/servo.cpp
   src/drivers/gimbal.cpp
+  src/control/mavros_commander.cpp
+  src/control/pos_control.cpp
 )
 
 target_include_directories(drone_drivers PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(drone_drivers PUBLIC drone_utils)
+target_link_libraries(drone_drivers PUBLIC drone_control drone_utils)
 ament_target_dependencies(drone_drivers PUBLIC
   rclcpp mavros_msgs geometry_msgs nav_msgs sensor_msgs std_msgs Eigen3)
 target_include_directories(drone_drivers SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
@@ -119,7 +137,7 @@ target_include_directories(drone_drivers SYSTEM PUBLIC ${Eigen3_INCLUDE_DIRS})
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
 
-install(TARGETS drone_utils drone_perception drone_drivers
+install(TARGETS drone_utils drone_control drone_perception drone_drivers
   EXPORT export_drone
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -175,6 +193,22 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_camera_model test/test_camera_model.cpp)
   target_link_libraries(test_camera_model drone_perception)
+
+  # Phase 5 — control
+  ament_add_gtest(test_yaw_utils test/test_yaw_utils.cpp)
+  target_link_libraries(test_yaw_utils drone_control)
+
+  ament_add_gtest(test_velocity_controller test/test_velocity_controller.cpp)
+  target_link_libraries(test_velocity_controller drone_control)
+
+  ament_add_gtest(test_cascade_controller test/test_cascade_controller.cpp)
+  target_link_libraries(test_cascade_controller drone_control)
+
+  ament_add_gtest(test_trajectory_controller test/test_trajectory_controller.cpp)
+  target_link_libraries(test_trajectory_controller drone_control)
+
+  ament_add_gtest(test_limits test/test_limits.cpp)
+  target_link_libraries(test_limits drone_control)
 endif()
 
 ament_package()

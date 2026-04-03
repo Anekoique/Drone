@@ -46,7 +46,7 @@ __global__ void warpaffine_kernel(
     float hy = 1 - ly, hx = 1 - lx;
     float w1 = hy * hx, w2 = hy * lx, w3 = ly * hx, w4 = ly * lx;
 
-    uint8_t * v1 = cv_st, * v2 = cv_st, * v3 = cv_st, * v4 = cv_st;
+    uint8_t *v1 = cv_st, *v2 = cv_st, *v3 = cv_st, *v4 = cv_st;
     if (y_low >= 0) {
       if (x_low >= 0) v1 = src + y_low * src_line_size + x_low * 3;
       if (x_high < src_width) v2 = src + y_low * src_line_size + x_high * 3;
